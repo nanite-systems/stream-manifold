@@ -1,84 +1,145 @@
 import {
-  ConnectedSocket,
-  MessageBody,
+  MessageMappingProperties,
   OnGatewayConnection,
-  SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets';
 import { ServerOptions, WebSocket } from 'ws';
-import { first, fromEvent, share, takeUntil } from 'rxjs';
-import { ContextIdFactory, ModuleRef } from '@nestjs/core';
+import {
+  EMPTY,
+  filter,
+  first,
+  from,
+  fromEvent,
+  mergeAll,
+  mergeMap,
+  Observable,
+  of,
+  share,
+  takeUntil,
+} from 'rxjs';
+import {
+  ContextId,
+  ContextIdFactory,
+  MetadataScanner,
+  ModuleRef,
+} from '@nestjs/core';
 import { StreamConnection } from './stream.connection';
-import { EventMessage } from './concers/message.types';
-import { HELP_EVENT_MESSAGE } from './messages/help.event';
-import { SubscribeDto } from './dtos/subscribe.dto';
-import { ClearSubscribeDto } from './dtos/clear-subscribe.dto';
-import { EventSubscription } from './event.subscription';
-import { BaseStream } from './streams/base.stream';
+import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
+import { GatewayMetadataExplorer } from '@nestjs/websockets/gateway-metadata-explorer';
+import { WsParamsFactory } from '@nestjs/websockets/factories/ws-params-factory';
+import { CLOSE_EVENT, PARAM_ARGS_METADATA } from '@nestjs/websockets/constants';
+import { NestGateway } from '@nestjs/websockets/interfaces/nest-gateway.interface';
 
 @WebSocketGateway<ServerOptions>()
 export class StreamGateway implements OnGatewayConnection {
-  // Temp solution until request scope gets implemented in NestJS
-  private readonly subscriptions = new WeakMap<WebSocket, EventSubscription>();
+  private readonly contextMap = new WeakMap<WebSocket, ContextId>();
 
-  constructor(private readonly baseStream: BaseStream) {}
+  private readonly paramFactory = new WsParamsFactory();
 
-  handleConnection(client: WebSocket): void {
+  private readonly metadataExplorer: GatewayMetadataExplorer;
+
+  constructor(
+    private readonly moduleRef: ModuleRef,
+    private readonly contextCreator: ExternalContextCreator,
+    metadataScanner: MetadataScanner,
+  ) {
+    this.metadataExplorer = new GatewayMetadataExplorer(metadataScanner);
+  }
+
+  async handleConnection(client: WebSocket): Promise<void> {
+    const contextId = ContextIdFactory.create();
+    this.contextMap.set(client, contextId);
+
+    const connection = await this.moduleRef.resolve(
+      StreamConnection,
+      contextId,
+    );
+
+    const nativeMessagesHandlers = this.metadataExplorer.explore(
+      <NestGateway>connection,
+    );
+    const messageHandlers = nativeMessagesHandlers.map(
+      ({ callback, message, methodName }) => ({
+        message,
+        methodName,
+        callback: this.contextCreator.create(
+          connection,
+          callback,
+          methodName,
+          PARAM_ARGS_METADATA,
+          this.paramFactory,
+          contextId,
+          null,
+          {
+            interceptors: true,
+            guards: true,
+            filters: true,
+          },
+          'ws',
+        ),
+      }),
+    );
+
+    this.bindMessageHandlers(client, messageHandlers, (data) =>
+      from(this.pickResult(data)).pipe(mergeAll()),
+    );
+
+    setImmediate(() => {
+      connection.onConnected();
+    });
+
     const close = fromEvent(client, 'close').pipe(share(), first());
 
-    // Initialize subscription
-    this.subscriptions.set(client, new EventSubscription());
-
-    this.baseStream.observable.pipe(takeUntil(close)).subscribe((message) => {
-      client.send(JSON.stringify(message));
+    close.subscribe(() => {
+      connection.onDisconnected();
     });
   }
 
-  @SubscribeMessage<EventMessage>({
-    service: 'event',
-    action: 'help',
-  })
-  help() {
-    return HELP_EVENT_MESSAGE;
+  async pickResult(deferredResult: Promise<any>): Promise<Observable<any>> {
+    const result = await deferredResult;
+    if (result && typeof result.subscribe == 'function') {
+      return result;
+    }
+    if (result instanceof Promise) {
+      return from(result);
+    }
+    return of(result);
   }
 
-  @SubscribeMessage<EventMessage>({
-    service: 'event',
-    action: 'echo',
-  })
-  echo(@MessageBody('payload') payload: unknown) {
-    // TODO: For each world?
-    return payload;
-  }
-
-  @SubscribeMessage<EventMessage>({
-    service: 'event',
-    action: 'subscribe',
-  })
-  subscribe(
-    @ConnectedSocket() client: WebSocket,
-    @MessageBody() message: SubscribeDto,
+  bindMessageHandlers(
+    client: any,
+    handlers: MessageMappingProperties[],
+    transform: (data: any) => Observable<any>,
   ) {
-    const subscription = this.subscriptions.get(client);
-
-    subscription.merge(message);
-
-    return subscription.format(message.list_characters);
+    const close$ = fromEvent(client, CLOSE_EVENT).pipe(share(), first());
+    const source$ = fromEvent(client, 'message').pipe(
+      mergeMap((data) =>
+        this.bindMessageHandler(data, handlers, transform).pipe(
+          filter((result) => result),
+        ),
+      ),
+      takeUntil(close$),
+    );
+    const onMessage = (response: any) => {
+      client.send(JSON.stringify(response));
+    };
+    source$.subscribe(onMessage);
   }
 
-  @SubscribeMessage<EventMessage>({
-    service: 'event',
-    action: 'clearSubscribe',
-  })
-  clearSubscribe(
-    @ConnectedSocket() client: WebSocket,
-    @MessageBody() message: ClearSubscribeDto,
-  ) {
-    const subscription = this.subscriptions.get(client);
-
-    if (message.all) subscription.clearAll();
-    else subscription.clear(message);
-
-    return subscription.format(message.list_characters);
+  bindMessageHandler(
+    buffer: any,
+    handlers: MessageMappingProperties[],
+    transform: (data: any) => Observable<any>,
+  ): Observable<any> {
+    try {
+      const message = JSON.parse(buffer.data);
+      const messageHandler = handlers.find(({ message: pt }) =>
+        Object.keys(pt).every((key) => pt[key] === message[key]),
+      );
+      const { callback } = messageHandler;
+      return transform(callback(message));
+    } catch {
+      return EMPTY;
+    }
   }
 }

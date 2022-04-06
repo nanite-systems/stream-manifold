@@ -1,11 +1,7 @@
-import { RedisModule } from '@nestjs-modules/ioredis';
+import { RedisModule as BaseRedisModule } from '@nestjs-modules/ioredis';
 
-export const redisModule = RedisModule.forRootAsync({
-  useFactory: () => {
-    return {
-      config: {
-        url: 'redis://localhost:6379',
-      },
-    };
+export const RedisModule = BaseRedisModule.forRoot({
+  config: {
+    url: 'redis://localhost:57614',
   },
 });
