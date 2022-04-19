@@ -2,6 +2,7 @@ import { map, merge, Observable, of, timer } from 'rxjs';
 import { WorldTracker } from '../../collector/world.tracker';
 import { Inject } from '@nestjs/common';
 import { WORLD_STATE_STREAM } from '../../collector/collector.constants';
+import { iterate } from 'iterare';
 
 export class BaseStreamFactory {
   private flyweight: Observable<any>;
@@ -12,9 +13,7 @@ export class BaseStreamFactory {
   ) {}
 
   create(): Observable<any> {
-    if (!this.flyweight) {
-      this.flyweight = this.baseStream();
-    }
+    if (!this.flyweight) this.flyweight = this.baseStream();
 
     return this.flyweight;
   }
@@ -43,19 +42,12 @@ export class BaseStreamFactory {
   public heartbeat(): Observable<any> {
     return timer(5000, 30000).pipe(
       map(() => ({
-        online: {},
-        // Object.entries(
-        //   this.worldTracker.
-        // ),
-        //   {
-        //   // TODO: Use world tracker
-        //   EventServerEndpoint_Cobalt_13: 'true',
-        //   EventServerEndpoint_Connery_1: 'true',
-        //   EventServerEndpoint_Emerald_17: 'true',
-        //   EventServerEndpoint_Jaeger_19: 'true',
-        //   EventServerEndpoint_Miller_10: 'true',
-        //   EventServerEndpoint_Soltech_40: 'true',
-        // },
+        online: Object.fromEntries(
+          iterate(this.worldTracker.all())
+            .filter(({ environment }) => environment == 'ps2')
+            .map(({ detail, state }) => [detail, JSON.stringify(state)])
+            .toArray(),
+        ),
         service: 'event',
         type: 'heartbeat',
       })),

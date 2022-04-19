@@ -22,7 +22,7 @@ export class WorldTracker implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     this.worldStateStream.subscribe((worldState) => {
-      this.setWorldState(worldState);
+      this.set(worldState);
     });
 
     const worldStates = Object.values(
@@ -31,14 +31,16 @@ export class WorldTracker implements OnModuleInit {
 
     for (const worldState of worldStates)
       if (!this.worldStates.has(worldState.worldId))
-        this.setWorldState(worldState);
+        this.set(worldState);
   }
 
-  private setWorldState(worldState: WorldState): void {
+  private set(worldState: WorldState): void {
     const { worldId } = worldState;
 
     this.worldStates.set(worldId, worldState);
   }
 
-  // getWorldState()
+  all(): Iterator<WorldState> {
+    return this.worldStates.values();
+  }
 }

@@ -17,38 +17,31 @@ import {
   share,
   takeUntil,
 } from 'rxjs';
-import {
-  ContextId,
-  ContextIdFactory,
-  MetadataScanner,
-  ModuleRef,
-} from '@nestjs/core';
+import { ContextId, ContextIdFactory, ModuleRef } from '@nestjs/core';
 import { StreamConnection } from './stream.connection';
-import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
-import { GatewayMetadataExplorer } from '@nestjs/websockets/gateway-metadata-explorer';
 import { WsParamsFactory } from '@nestjs/websockets/factories/ws-params-factory';
 import { CLOSE_EVENT, PARAM_ARGS_METADATA } from '@nestjs/websockets/constants';
+import { GatewayMetadataExplorer } from '@nestjs/websockets/gateway-metadata-explorer';
+import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
+import { REQUEST_CONTEXT_ID } from '@nestjs/core/router/request/request-constants';
+import { IncomingMessage } from 'http';
 import { NestGateway } from '@nestjs/websockets/interfaces/nest-gateway.interface';
 
 @WebSocketGateway<ServerOptions>()
 export class StreamGateway implements OnGatewayConnection {
-  private readonly contextMap = new WeakMap<WebSocket, ContextId>();
-
   private readonly paramFactory = new WsParamsFactory();
-
-  private readonly metadataExplorer: GatewayMetadataExplorer;
 
   constructor(
     private readonly moduleRef: ModuleRef,
     private readonly contextCreator: ExternalContextCreator,
-    metadataScanner: MetadataScanner,
-  ) {
-    this.metadataExplorer = new GatewayMetadataExplorer(metadataScanner);
-  }
+    private readonly metadataExplorer: GatewayMetadataExplorer,
+  ) {}
 
-  async handleConnection(client: WebSocket): Promise<void> {
-    const contextId = ContextIdFactory.create();
-    this.contextMap.set(client, contextId);
+  async handleConnection(client: WebSocket, ...args: any[]): Promise<void> {
+    const req = { hello: 'world' }; //args[0];
+    const contextId = ContextIdFactory.getByRequest(req);
+
+    this.moduleRef.registerRequestByContextId(req, contextId);
 
     const connection = await this.moduleRef.resolve(
       StreamConnection,
@@ -85,13 +78,13 @@ export class StreamGateway implements OnGatewayConnection {
     );
 
     setImmediate(() => {
-      connection.onConnected();
+      connection.onConnected(client, ...(args as [IncomingMessage]));
     });
 
     const close = fromEvent(client, 'close').pipe(share(), first());
 
     close.subscribe(() => {
-      connection.onDisconnected();
+      connection.onDisconnected(client);
     });
   }
 
@@ -141,5 +134,21 @@ export class StreamGateway implements OnGatewayConnection {
     } catch {
       return EMPTY;
     }
+  }
+
+  private getContextId<T extends Record<any, unknown> = any>(
+    request: T,
+  ): ContextId {
+    const contextId = ContextIdFactory.getByRequest(request);
+    if (!request[REQUEST_CONTEXT_ID as any]) {
+      Object.defineProperty(request, REQUEST_CONTEXT_ID, {
+        value: contextId,
+        enumerable: false,
+        writable: false,
+        configurable: false,
+      });
+      this.moduleRef.registerRequestByContextId(request, contextId);
+    }
+    return contextId;
   }
 }
