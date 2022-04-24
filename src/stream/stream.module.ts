@@ -1,7 +1,7 @@
 import { Module, Scope } from '@nestjs/common';
 import { StreamGateway } from './stream.gateway';
 import { CollectorModule } from '../collector/collector.module';
-import { EventSubscription } from './event.subscription';
+import { EventSubscription } from './entities/event.subscription';
 import { BaseStreamFactory } from './factories/base-stream.factory';
 import { StreamConnection } from './stream.connection';
 import { DiscoveryModule, MetadataScanner } from '@nestjs/core';

@@ -26,6 +26,7 @@ import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-cr
 import { REQUEST_CONTEXT_ID } from '@nestjs/core/router/request/request-constants';
 import { IncomingMessage } from 'http';
 import { NestGateway } from '@nestjs/websockets/interfaces/nest-gateway.interface';
+import { ConnectionContract } from './concers/connection.contract';
 
 @WebSocketGateway<ServerOptions>()
 export class StreamGateway implements OnGatewayConnection {
@@ -38,12 +39,12 @@ export class StreamGateway implements OnGatewayConnection {
   ) {}
 
   async handleConnection(client: WebSocket, ...args: any[]): Promise<void> {
-    const req = { hello: 'world' }; //args[0];
+    const req: IncomingMessage = args[0];
     const contextId = ContextIdFactory.getByRequest(req);
 
     this.moduleRef.registerRequestByContextId(req, contextId);
 
-    const connection = await this.moduleRef.resolve(
+    const connection: ConnectionContract = await this.moduleRef.resolve(
       StreamConnection,
       contextId,
     );
@@ -77,15 +78,17 @@ export class StreamGateway implements OnGatewayConnection {
       from(this.pickResult(data)).pipe(mergeAll()),
     );
 
-    setImmediate(() => {
-      connection.onConnected(client, ...(args as [IncomingMessage]));
-    });
+    if (connection.onConnected)
+      setImmediate(() => {
+        connection.onConnected(client, ...(args as [IncomingMessage]));
+      });
 
     const close = fromEvent(client, 'close').pipe(share(), first());
 
-    close.subscribe(() => {
-      connection.onDisconnected(client);
-    });
+    if (connection.onDisconnected)
+      close.subscribe(() => {
+        connection.onDisconnected(client);
+      });
   }
 
   async pickResult(deferredResult: Promise<any>): Promise<Observable<any>> {

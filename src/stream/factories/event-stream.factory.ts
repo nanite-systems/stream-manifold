@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { EventSubscription } from '../event.subscription';
+import { EventSubscription } from '../entities/event.subscription';
 import { from, Observable } from 'rxjs';
 
 @Injectable()

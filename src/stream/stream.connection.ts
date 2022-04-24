@@ -9,13 +9,14 @@ import { HELP_EVENT_MESSAGE } from './messages/help-event.message';
 import { WebSocket } from 'ws';
 import { SubscribeDto } from './dtos/subscribe.dto';
 import { ClearSubscribeDto } from './dtos/clear-subscribe.dto';
-import { EventSubscription } from './event.subscription';
+import { EventSubscription } from './entities/event.subscription';
 import { first, fromEvent, Observable, share, takeUntil } from 'rxjs';
 import { IncomingMessage } from 'http';
 import { MESSAGE_STREAM } from './constants';
+import { ConnectionContract } from "./concers/connection.contract";
 
 @Injectable({ scope: Scope.REQUEST })
-export class StreamConnection {
+export class StreamConnection implements ConnectionContract {
   constructor(
     private readonly subscription: EventSubscription,
     @Inject(MESSAGE_STREAM) private readonly messagesStream: Observable<any>,
@@ -33,7 +34,7 @@ export class StreamConnection {
     });
   }
 
-  onDisconnected(client: WebSocket): void {}
+  // onDisconnected(client: WebSocket): void {}
 
   @SubscribeMessage<EventMessage>({
     service: 'event',

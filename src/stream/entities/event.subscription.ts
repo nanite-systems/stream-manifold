@@ -1,4 +1,4 @@
-import { SubscribeDto } from './dtos/subscribe.dto';
+import { SubscribeDto } from '../dtos/subscribe.dto';
 import { Injectable, Scope } from '@nestjs/common';
 
 @Injectable({ scope: Scope.REQUEST })
