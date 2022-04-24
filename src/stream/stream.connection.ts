@@ -11,26 +11,21 @@ import { SubscribeDto } from './dtos/subscribe.dto';
 import { ClearSubscribeDto } from './dtos/clear-subscribe.dto';
 import { EventSubscription } from './entities/event.subscription';
 import { first, fromEvent, Observable, share, takeUntil } from 'rxjs';
-import { IncomingMessage } from 'http';
-import { MESSAGE_STREAM } from './constants';
-import { ConnectionContract } from "./concers/connection.contract";
+import { CENSUS_STREAM } from './constants';
+import { ConnectionContract } from './concers/connection.contract';
 
 @Injectable({ scope: Scope.REQUEST })
 export class StreamConnection implements ConnectionContract {
   constructor(
     private readonly subscription: EventSubscription,
-    @Inject(MESSAGE_STREAM) private readonly messagesStream: Observable<any>,
+    @Inject(CENSUS_STREAM) private readonly stream: Observable<any>,
   ) {}
 
-  onConnected(client: WebSocket, req: IncomingMessage): void {
+  onConnected(client: WebSocket): void {
     const close = fromEvent(client, 'close').pipe(first(), share());
 
-    const messageHandler = (message: any) => {
+    this.stream.pipe(takeUntil(close)).subscribe((message: any) => {
       client.send(JSON.stringify(message));
-    };
-
-    this.messagesStream.pipe(takeUntil(close)).subscribe((message) => {
-      messageHandler(message);
     });
   }
 

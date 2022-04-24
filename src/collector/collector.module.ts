@@ -19,6 +19,6 @@ import { WORLD_STATE_CHANNEL, WORLD_STATE_STREAM } from './collector.constants';
       inject: [MessageDistributor],
     },
   ],
-  exports: [WorldTracker, WORLD_STATE_STREAM],
+  exports: [WorldTracker, WORLD_STATE_STREAM, EventStreamFactory],
 })
 export class CollectorModule {}
