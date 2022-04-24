@@ -1,4 +1,4 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable, Logger, Scope } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -16,12 +16,17 @@ import { ConnectionContract } from './concers/connection.contract';
 
 @Injectable({ scope: Scope.REQUEST })
 export class StreamConnection implements ConnectionContract {
+  private static readonly logger = new Logger('StreamConnection');
+
   constructor(
     private readonly subscription: EventSubscription,
     @Inject(CENSUS_STREAM) private readonly stream: Observable<any>,
   ) {}
 
   onConnected(client: WebSocket): void {
+    // TODO: Improve logged message
+    StreamConnection.logger.log('Client connected');
+
     const close = fromEvent(client, 'close').pipe(first(), share());
 
     this.stream.pipe(takeUntil(close)).subscribe((message: any) => {
@@ -29,7 +34,9 @@ export class StreamConnection implements ConnectionContract {
     });
   }
 
-  // onDisconnected(client: WebSocket): void {}
+  onDisconnected(): void {
+    StreamConnection.logger.log('Client disconnected');
+  }
 
   @SubscribeMessage<EventMessage>({
     service: 'event',
