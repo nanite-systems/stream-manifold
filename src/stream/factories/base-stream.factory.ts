@@ -6,12 +6,14 @@ import { Stream } from 'ps2census';
 
 @Injectable()
 export class BaseStreamFactory implements FactoryInterface<Observable<any>> {
-  create(environment: Environment): Observable<any> {
+  constructor(private readonly environment: Environment) {}
+
+  create(): Observable<Stream.CensusMessage> {
     return merge(
       this.connectionState(),
       this.sendHelp(),
-      this.heartbeat(environment),
-      this.serviceState(environment),
+      this.heartbeat(),
+      this.serviceState(),
     );
   }
 
@@ -27,13 +29,11 @@ export class BaseStreamFactory implements FactoryInterface<Observable<any>> {
     return of({ 'send this for help': { service: 'event', action: 'help' } });
   }
 
-  public heartbeat(
-    environment: Environment,
-  ): Observable<Stream.CensusMessages.Heartbeat> {
+  public heartbeat(): Observable<Stream.CensusMessages.Heartbeat> {
     return timer(5000, 30000).pipe(
       map(() => ({
         online: Object.fromEntries(
-          environment
+          this.environment
             .getWorldStates()
             .map((state) => [state.detail, state.state ? 'true' : 'false']),
         ),
@@ -43,10 +43,8 @@ export class BaseStreamFactory implements FactoryInterface<Observable<any>> {
     );
   }
 
-  public serviceState(
-    environment: Environment,
-  ): Observable<Stream.CensusMessages.ServiceStateChanged> {
-    return environment.worldStream.pipe(
+  public serviceState(): Observable<Stream.CensusMessages.ServiceStateChanged> {
+    return this.environment.worldStream.pipe(
       map((state) => ({
         detail: state.detail,
         online: state.state ? 'true' : 'false',
