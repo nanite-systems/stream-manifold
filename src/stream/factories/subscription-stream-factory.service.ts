@@ -3,20 +3,11 @@ import { merge, Observable } from 'rxjs';
 import { FactoryInterface } from '../../utils/factory.interface';
 import { EventSubscription } from '../entities/event.subscription';
 import { ConnectionSettings } from '../entities/connection.settings';
-import { EventStreamFactory } from '../../collector/factories/event-stream.factory';
 
 @Injectable({ scope: Scope.REQUEST })
 export class SubscriptionStreamFactory
   implements FactoryInterface<Observable<any>>
 {
-  private static readonly EVENTS = [];
-
-  private static readonly ENVIRONMENTS = {
-    ps2: [1, 10, 13, 17, 19, 40],
-    ps2ps4eu: [2000],
-    ps2ps4us: [1000],
-  };
-
   constructor(
     private readonly settings: ConnectionSettings,
     private readonly subscription: EventSubscription,

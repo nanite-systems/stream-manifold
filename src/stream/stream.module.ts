@@ -1,6 +1,5 @@
-import { Module, Scope } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { StreamGateway } from './stream.gateway';
-import { CollectorModule } from '../collector/collector.module';
 import { EventSubscription } from './entities/event.subscription';
 import { BaseStreamFactory } from './factories/base-stream.factory';
 import { StreamConnection } from './stream.connection';
@@ -10,10 +9,11 @@ import { BASE_STREAM, CENSUS_STREAM, SUBSCRIPTION_STREAM } from './constants';
 import { GatewayMetadataExplorer } from '@nestjs/websockets/gateway-metadata-explorer';
 import { provideFactory } from '../utils/provide.helpers';
 import { ConnectionSettings } from './entities/connection.settings';
-import { merge, Observable } from 'rxjs';
+import { CensusStreamFactory } from './factories/census-stream.factory';
+import { RabbitMqModule } from '../rabbit-mq/rabbit-mq.module';
 
 @Module({
-  imports: [DiscoveryModule, CollectorModule],
+  imports: [DiscoveryModule, RabbitMqModule],
   providers: [
     {
       provide: GatewayMetadataExplorer,
@@ -30,15 +30,11 @@ import { merge, Observable } from 'rxjs';
 
     BaseStreamFactory,
     SubscriptionStreamFactory,
+    CensusStreamFactory,
 
     provideFactory(BASE_STREAM, BaseStreamFactory),
     provideFactory(SUBSCRIPTION_STREAM, SubscriptionStreamFactory),
-    {
-      provide: CENSUS_STREAM,
-      useFactory: (...streams: Observable<any>[]) => merge(streams),
-      inject: [BASE_STREAM, SUBSCRIPTION_STREAM],
-      scope: Scope.REQUEST,
-    },
+    provideFactory(CENSUS_STREAM, CensusStreamFactory),
   ],
 })
 export class StreamModule {}
