@@ -1,40 +1,30 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { IngressModule } from '../ingress/ingress.module';
 import { EnvironmentFactory } from './factories/environment.factory';
 import { EnvironmentManifest } from './environment.manifest';
-import { PC_ENV, PS4EU_ENV, PS4US_ENV } from './constants';
+import { EnvironmentService } from './services/environment.service';
 
 @Module({
   imports: [IngressModule],
-  providers: [
-    EnvironmentFactory,
-    EnvironmentManifest,
-
-    {
-      provide: PC_ENV,
-      useFactory: (
-        factory: EnvironmentFactory,
-        manifest: EnvironmentManifest,
-      ) => factory.create(manifest.ps2),
-      inject: [EnvironmentFactory, EnvironmentManifest],
-    },
-    {
-      provide: PS4EU_ENV,
-      useFactory: (
-        factory: EnvironmentFactory,
-        manifest: EnvironmentManifest,
-      ) => factory.create(manifest.ps2ps4eu),
-      inject: [EnvironmentFactory, EnvironmentManifest],
-    },
-    {
-      provide: PS4US_ENV,
-      useFactory: (
-        factory: EnvironmentFactory,
-        manifest: EnvironmentManifest,
-      ) => factory.create(manifest.ps2ps4us),
-      inject: [EnvironmentFactory, EnvironmentManifest],
-    },
-  ],
-  exports: [PC_ENV, PS4EU_ENV, PS4US_ENV],
+  providers: [EnvironmentFactory, EnvironmentManifest, EnvironmentService],
+  exports: [EnvironmentService],
 })
-export class EnvironmentsModule {}
+export class EnvironmentsModule implements OnModuleInit {
+  constructor(
+    private readonly manifest: EnvironmentManifest,
+    private readonly factory: EnvironmentFactory,
+    private readonly service: EnvironmentService,
+  ) {}
+
+  onModuleInit(): void {
+    const pc = this.factory.create(this.manifest.ps2);
+    const ps4eu = this.factory.create(this.manifest.ps2ps4eu);
+    const ps4us = this.factory.create(this.manifest.ps2ps4us);
+
+    this.service
+      .register('', pc)
+      .register('ps2', pc)
+      .register('os2ps4eu', ps4eu)
+      .register('ps2ps4us', ps4us);
+  }
+}
