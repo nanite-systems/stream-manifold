@@ -29,7 +29,7 @@ export class DistributerService implements OnModuleInit {
           this.worldStateQueue.next(payload);
         } else if (type == 'event') {
           this.eventStreamFactory
-            .create(worldId, specifier as Stream.PS2EventNames)
+            .get(worldId, specifier as Stream.PS2EventNames)
             .next(payload);
         }
       } catch (err) {

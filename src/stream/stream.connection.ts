@@ -1,25 +1,22 @@
 import { Inject, Injectable, Logger, Scope } from '@nestjs/common';
-import {
-  ConnectedSocket,
-  MessageBody,
-  SubscribeMessage,
-} from '@nestjs/websockets';
+import { MessageBody, SubscribeMessage } from '@nestjs/websockets';
 import { EventMessage } from './concers/message.types';
 import { HELP_EVENT_MESSAGE } from './messages/help-event.message';
 import { WebSocket } from 'ws';
 import { SubscribeDto } from './dtos/subscribe.dto';
 import { ClearSubscribeDto } from './dtos/clear-subscribe.dto';
-import { EventSubscription } from './entities/event.subscription';
+import { EventSubscriptionQuery } from '../subscription/entity/event-subscription.query';
 import { first, fromEvent, Observable, share, takeUntil } from 'rxjs';
 import { CENSUS_STREAM } from './constants';
 import { ConnectionContract } from './concers/connection.contract';
+import { EchoDto } from './dtos/echo.dto';
 
 @Injectable({ scope: Scope.REQUEST })
 export class StreamConnection implements ConnectionContract {
   private static readonly logger = new Logger('StreamConnection');
 
   constructor(
-    private readonly subscription: EventSubscription,
+    private readonly subscription: EventSubscriptionQuery,
     @Inject(CENSUS_STREAM) private readonly stream: Observable<any>,
   ) {}
 
@@ -35,6 +32,8 @@ export class StreamConnection implements ConnectionContract {
   }
 
   onDisconnected(): void {
+    this.subscription.clearAll();
+
     StreamConnection.logger.log('Client disconnected');
   }
 
@@ -50,7 +49,7 @@ export class StreamConnection implements ConnectionContract {
     service: 'event',
     action: 'echo',
   })
-  echo(@MessageBody('payload') payload: unknown) {
+  echo(@MessageBody() { payload }: EchoDto) {
     return payload;
   }
 
@@ -58,10 +57,7 @@ export class StreamConnection implements ConnectionContract {
     service: 'event',
     action: 'subscribe',
   })
-  subscribe(
-    @ConnectedSocket() client: WebSocket,
-    @MessageBody() message: SubscribeDto,
-  ) {
+  subscribe(@MessageBody() message: SubscribeDto) {
     this.subscription.merge(message);
 
     return this.subscription.format(message.list_characters);
@@ -71,10 +67,7 @@ export class StreamConnection implements ConnectionContract {
     service: 'event',
     action: 'clearSubscribe',
   })
-  clearSubscribe(
-    @ConnectedSocket() client: WebSocket,
-    @MessageBody() message: ClearSubscribeDto,
-  ) {
+  clearSubscribe(@MessageBody() message: ClearSubscribeDto) {
     if (message.all) this.subscription.clearAll();
     else this.subscription.clear(message);
 

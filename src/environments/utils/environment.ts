@@ -16,6 +16,10 @@ export class Environment {
     );
   }
 
+  get worlds(): string[] {
+    return Array.from(this.description.worlds);
+  }
+
   getWorldStates(): WorldState[] {
     return this.worldStateService
       .getStates()

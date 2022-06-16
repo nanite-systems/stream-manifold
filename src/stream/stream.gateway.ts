@@ -1,8 +1,5 @@
-import {
-  MessageMappingProperties,
-  OnGatewayConnection,
-  WebSocketGateway,
-} from '@nestjs/websockets';
+import { OnGatewayConnection, WebSocketGateway } from '@nestjs/websockets';
+import { WsMessageHandler } from '@nestjs/common';
 import { ServerOptions, WebSocket } from 'ws';
 import {
   EMPTY,
@@ -40,7 +37,7 @@ export class StreamGateway implements OnGatewayConnection {
 
   async handleConnection(client: WebSocket, ...args: any[]): Promise<void> {
     const req: IncomingMessage = args[0];
-    const contextId = ContextIdFactory.getByRequest(req);
+    const contextId = this.getContextId(req);
 
     this.moduleRef.registerRequestByContextId(req, contextId);
 
@@ -74,7 +71,12 @@ export class StreamGateway implements OnGatewayConnection {
       }),
     );
 
-    this.bindMessageHandlers(client, messageHandlers, (data) =>
+    const handlers = messageHandlers.map(({ callback, message }) => ({
+      message,
+      callback: callback.bind(connection, client),
+    }));
+
+    this.bindMessageHandlers(client, handlers, (data) =>
       from(this.pickResult(data)).pipe(mergeAll()),
     );
 
@@ -104,7 +106,7 @@ export class StreamGateway implements OnGatewayConnection {
 
   bindMessageHandlers(
     client: any,
-    handlers: MessageMappingProperties[],
+    handlers: WsMessageHandler[],
     transform: (data: any) => Observable<any>,
   ) {
     const close$ = fromEvent(client, CLOSE_EVENT).pipe(share(), first());
@@ -124,7 +126,7 @@ export class StreamGateway implements OnGatewayConnection {
 
   bindMessageHandler(
     buffer: any,
-    handlers: MessageMappingProperties[],
+    handlers: WsMessageHandler[],
     transform: (data: any) => Observable<any>,
   ): Observable<any> {
     try {
@@ -139,9 +141,7 @@ export class StreamGateway implements OnGatewayConnection {
     }
   }
 
-  private getContextId<T extends Record<any, unknown> = any>(
-    request: T,
-  ): ContextId {
+  private getContextId<T = any>(request: T): ContextId {
     const contextId = ContextIdFactory.getByRequest(request);
     if (!request[REQUEST_CONTEXT_ID as any]) {
       Object.defineProperty(request, REQUEST_CONTEXT_ID, {

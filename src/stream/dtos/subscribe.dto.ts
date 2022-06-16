@@ -7,5 +7,5 @@ export class SubscribeDto {
 
   readonly list_characters = false;
 
-  readonly logicalAndCharactersWithWorlds?: boolean;
+  readonly logicalAndCharactersWithWorlds: boolean;
 }
