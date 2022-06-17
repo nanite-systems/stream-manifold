@@ -2,25 +2,23 @@ import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { WorldState } from '../concerns/world-state.type';
 import { Axios } from 'axios';
 import { MULTIPLEXER_HTTP } from '../../multiplexer/constants';
-import { WORLD_STATE_QUEUE } from '../../ingress/constants';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 
 @Injectable()
 export class WorldStateService implements OnModuleInit {
   private readonly cache = new Map<string, WorldState>();
 
-  constructor(
-    @Inject(MULTIPLEXER_HTTP) private readonly multiplexer: Axios,
-    @Inject(WORLD_STATE_QUEUE)
-    private readonly worldStateQueue: Observable<WorldState>,
-  ) {}
+  private readonly _stream = new Subject<WorldState>();
+
+  constructor(@Inject(MULTIPLEXER_HTTP) private readonly multiplexer: Axios) {
+  }
+
+  get stream(): Observable<WorldState> {
+    return this._stream;
+  }
 
   async onModuleInit(): Promise<void> {
     await this.fetchStates();
-
-    this.worldStateQueue.subscribe((worldState) => {
-      this.registerState(worldState);
-    });
   }
 
   getStates(): WorldState[] {
@@ -28,7 +26,11 @@ export class WorldStateService implements OnModuleInit {
   }
 
   registerState(state: WorldState): void {
+    const current = this.cache.get(state.worldId);
+
     this.cache.set(state.worldId, state);
+
+    if (!current || current.state != state.state) this._stream.next(state);
   }
 
   async fetchStates(): Promise<void> {

@@ -1,11 +1,10 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { INGRESS_QUEUE } from '../../rabbit-mq/constants';
-import { Observable, Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ConsumeMessage } from 'amqplib';
 import { EventStreamFactory } from '../factories/event-stream.factory';
 import { Stream } from 'ps2census';
-import { WORLD_STATE_QUEUE } from '../constants';
-import { WorldState } from '../../world-state/concerns/world-state.type';
+import { WorldStateService } from '../../world-state/services/world-state.service';
 
 @Injectable()
 export class DistributerService implements OnModuleInit {
@@ -15,8 +14,7 @@ export class DistributerService implements OnModuleInit {
     @Inject(INGRESS_QUEUE)
     private readonly queue: Observable<ConsumeMessage>,
     private readonly eventStreamFactory: EventStreamFactory,
-    @Inject(WORLD_STATE_QUEUE)
-    private readonly worldStateQueue: Subject<WorldState>,
+    private readonly worldStateService: WorldStateService,
   ) {}
 
   onModuleInit(): void {
@@ -26,7 +24,7 @@ export class DistributerService implements OnModuleInit {
         const [type, worldId, specifier] = message.fields.routingKey.split('.');
 
         if (type == 'world-state') {
-          this.worldStateQueue.next(payload);
+          this.worldStateService.registerState(payload);
         } else if (type == 'event') {
           this.eventStreamFactory
             .get(worldId, specifier as Stream.PS2EventNames)

@@ -4,7 +4,7 @@ import { AmqpConnectionManager, ChannelWrapper } from 'amqp-connection-manager';
 import { Observable, Subject } from 'rxjs';
 
 @Injectable()
-export class EventStreamFactory {
+export class DataStreamFactory {
   constructor(
     @Inject(RABBIT_MQ) private readonly rabbit: AmqpConnectionManager,
   ) {}

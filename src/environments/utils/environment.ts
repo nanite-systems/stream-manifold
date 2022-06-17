@@ -9,9 +9,8 @@ export class Environment {
   constructor(
     readonly description: EnvironmentDescription,
     private readonly worldStateService: WorldStateService,
-    worldStream: Observable<WorldState>,
   ) {
-    this.worldStream = worldStream.pipe(
+    this.worldStream = this.worldStateService.stream.pipe(
       filter((state) => this.description.hasWorld(state.worldId)),
     );
   }

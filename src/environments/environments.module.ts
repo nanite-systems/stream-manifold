@@ -3,9 +3,10 @@ import { IngressModule } from '../ingress/ingress.module';
 import { EnvironmentFactory } from './factories/environment.factory';
 import { EnvironmentManifest } from './environment.manifest';
 import { EnvironmentService } from './services/environment.service';
+import { WorldStateModule } from '../world-state/world-state.module';
 
 @Module({
-  imports: [IngressModule],
+  imports: [IngressModule, WorldStateModule],
   providers: [EnvironmentFactory, EnvironmentManifest, EnvironmentService],
   exports: [EnvironmentService],
 })
