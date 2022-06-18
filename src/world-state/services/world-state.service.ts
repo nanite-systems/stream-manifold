@@ -10,8 +10,7 @@ export class WorldStateService implements OnModuleInit {
 
   private readonly _stream = new Subject<WorldState>();
 
-  constructor(@Inject(MULTIPLEXER_HTTP) private readonly multiplexer: Axios) {
-  }
+  constructor(@Inject(MULTIPLEXER_HTTP) private readonly multiplexer: Axios) {}
 
   get stream(): Observable<WorldState> {
     return this._stream;

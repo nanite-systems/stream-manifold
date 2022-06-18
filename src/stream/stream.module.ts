@@ -10,8 +10,6 @@ import { provideFactory } from '../utils/provide.helpers';
 import { ConnectionSettings } from './entities/connection.settings';
 import { CensusStreamFactory } from './factories/census-stream.factory';
 import { RabbitMqModule } from '../rabbit-mq/rabbit-mq.module';
-import { Environment } from '../environments/utils/environment';
-import { EnvironmentSelectorFactory } from './factories/environment-selector.factory';
 import { EnvironmentsModule } from '../environments/environments.module';
 import { SubscriptionModule } from '../subscription/subscription.module';
 
@@ -41,8 +39,6 @@ import { SubscriptionModule } from '../subscription/subscription.module';
 
     provideFactory(BASE_STREAM, BaseStreamFactory),
     provideFactory(CENSUS_STREAM, CensusStreamFactory),
-
-    provideFactory(Environment, EnvironmentSelectorFactory),
   ],
 })
 export class StreamModule {}

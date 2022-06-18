@@ -24,5 +24,4 @@ import { DataStreamFactory } from './factories/data-stream.factory';
   ],
   exports: [INGRESS_QUEUE],
 })
-export class RabbitMqModule {
-}
+export class RabbitMqModule {}
