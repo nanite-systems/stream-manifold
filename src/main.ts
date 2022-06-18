@@ -5,17 +5,20 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { WsAdapter } from '@nestjs/platform-ws';
+import { AppConfig } from './app.config';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
   );
+  const config = await app.resolve(AppConfig);
+
   app.useWebSocketAdapter(new WsAdapter(app));
 
   app.enableShutdownHooks();
 
-  await app.listen(3000, '0.0.0.0');
+  await app.listen(config.port, '0.0.0.0');
 }
 
 void bootstrap();
