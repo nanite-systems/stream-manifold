@@ -1,0 +1,19 @@
+name: Testing
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  compile-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Compile
+        run: yarn build
+      - name: Test
+        run: yarn test --passWithNoTests
