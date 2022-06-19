@@ -3,6 +3,6 @@ import { IsUrl } from 'class-validator';
 
 export class MultiplexerConfig {
   @ProcessEnv('MULTIPLEXER_ENDPOINT')
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   endpoint: string;
 }

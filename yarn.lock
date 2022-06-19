@@ -319,13 +319,15 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@census-reworked/nestjs-utils@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@census-reworked/nestjs-utils/-/nestjs-utils-0.0.3.tgz#a7c03deae5c7ad4cce1fc24c1190c4c6d843c41f"
-  integrity sha512-UnvCq1RP8qde2XL5FRxiLJr/vg8TIMB3fNAlu9vIix6EtfPhb0bpt3AR2QL5xg8MXMu7LuorYEfSljfjkJco+Q==
+"@census-reworked/nestjs-utils@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@census-reworked/nestjs-utils/-/nestjs-utils-0.1.2.tgz#fb5bce7daa51a0102bd3e2a839c4aef87499e42b"
+  integrity sha512-OjefRyitN9FurSkbdHaHYQfdhwMKxWRoCTjnpnFvUoBmihMU/tuhs1WSOjP+hDEcIHQ9lepgHuP97/GgqUb+lg==
   dependencies:
     class-transformer "^0.5.1"
     class-validator "^0.13.2"
+    dotenv "^16.0.1"
+    dotenv-expand "^8.0.3"
     reflect-metadata "^0.1.13"
 
 "@colors/colors@1.5.0":
@@ -1175,6 +1177,11 @@
   integrity sha512-X3HPWTwXRerBZS7Mo1k6vMVR1Z6zmJcDVn5O/31whe0tnjE4te6ZJSJGq1RiqHPjzPdMTfjCFogDJmwng9xHaQ==
   dependencies:
     "@types/superagent" "*"
+
+"@types/validator@^13.7.2":
+  version "13.7.3"
+  resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.7.3.tgz#3193c0a3c03a7d1189016c62b4fba4b149ef5e33"
+  integrity sha512-DNviAE5OUcZ5s+XEQHRhERLg8fOp8gSgvyJ4aaFASx5wwaObm+PBwTIMXiOFm1QrSee5oYwEAYb7LMzX2O88gA==
 
 "@types/ws@^8.2.2":
   version "8.5.3"
@@ -2319,6 +2326,16 @@ dot-prop@^5.1.0:
   integrity sha512-QM8q3zDe58hqUqjraQOmzZ1LIH9SWQJTlEKCH4kJ2oQvLZk7RbQXvtDM2XEq3fwkV9CCvvH4LA0AV+ogFsBM2Q==
   dependencies:
     is-obj "^2.0.0"
+
+dotenv-expand@^8.0.3:
+  version "8.0.3"
+  resolved "https://registry.yarnpkg.com/dotenv-expand/-/dotenv-expand-8.0.3.tgz#29016757455bcc748469c83a19b36aaf2b83dd6e"
+  integrity sha512-SErOMvge0ZUyWd5B0NXMQlDkN+8r+HhVUsxgOO7IoPDOdDRD2JjExpN6y3KnFR66jsJMwSn1pqIivhU5rcJiNg==
+
+dotenv@^16.0.1:
+  version "16.0.1"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.0.1.tgz#8f8f9d94876c35dac989876a5d3a82a267fdce1d"
+  integrity sha512-1K6hR6wtk2FviQ4kEiSjFiH5rpzEVi8WW0x96aztHVMhEspNpc4DVOUTEHtEva5VThQ8IaBX1Pe4gSzpVVUsKQ==
 
 eastasianwidth@^0.2.0:
   version "0.2.0"
