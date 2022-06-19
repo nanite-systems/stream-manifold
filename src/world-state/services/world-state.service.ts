@@ -33,8 +33,9 @@ export class WorldStateService implements OnModuleInit {
   }
 
   async fetchStates(): Promise<void> {
-    const { data } = await this.multiplexer.get<WorldState[]>('/world-states');
+    const { data } = await this.multiplexer.get<string>('/world-states');
 
-    data.forEach((state) => this.registerState(state));
+    // TODO: Why is this even necessary?
+    JSON.parse(data).forEach((state) => this.registerState(state));
   }
 }
