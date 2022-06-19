@@ -8,7 +8,7 @@ export class EnvironmentAccessor {
 
   get environment(): string {
     const params = new URLSearchParams(
-      this.request.url.match(/(?<=\?).*/).shift(),
+      this.request.url.match(/(?<=\?).*/)?.[1],
     );
 
     return params.get('environment') ?? 'ps2';
