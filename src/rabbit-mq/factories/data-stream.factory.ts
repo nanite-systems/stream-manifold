@@ -21,7 +21,7 @@ export class DataStreamFactory {
     return this.rabbit.createChannel({
       json: true,
       setup: async (channel) => {
-        await channel.assertExchange(name, 'fanout');
+        await channel.assertExchange(name, 'fanout', { durable: false });
         const { queue } = await channel.assertQueue('', {
           durable: false,
           exclusive: true,
