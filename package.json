@@ -23,7 +23,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@census-reworked/nestjs-utils": "^0.0.1",
+    "@census-reworked/nestjs-utils": "^0.0.3",
     "@nestjs-modules/ioredis": "^1.0.0",
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",

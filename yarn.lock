@@ -319,10 +319,10 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@census-reworked/nestjs-utils@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@census-reworked/nestjs-utils/-/nestjs-utils-0.0.1.tgz#27558f5f4ee094f87242e4f1ab41895e15d2110f"
-  integrity sha512-AjOL+jbUwr88WR0I4D2D7AJ5t5pf4iyfeZjVLzE70E5zFF32RoL9PacMR6Y0nEF6dZpfJ5E3Ow9kEo1VwohMgQ==
+"@census-reworked/nestjs-utils@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@census-reworked/nestjs-utils/-/nestjs-utils-0.0.3.tgz#a7c03deae5c7ad4cce1fc24c1190c4c6d843c41f"
+  integrity sha512-UnvCq1RP8qde2XL5FRxiLJr/vg8TIMB3fNAlu9vIix6EtfPhb0bpt3AR2QL5xg8MXMu7LuorYEfSljfjkJco+Q==
   dependencies:
     class-transformer "^0.5.1"
     class-validator "^0.13.2"
