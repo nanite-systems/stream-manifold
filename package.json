@@ -34,7 +34,6 @@
     "amqplib": "^0.9.1",
     "axios": "^0.27.2",
     "eventemitter3": "^4.0.7",
-    "ioredis": "^4.28.5",
     "iterare": "^1.2.1",
     "ps2census": "^4.0.5",
     "reflect-metadata": "^0.1.13",
