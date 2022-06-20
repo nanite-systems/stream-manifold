@@ -4,13 +4,13 @@ import { WorldStateService } from '../../world-state/services/world-state.servic
 import { EnvironmentDescription } from './environment.description';
 
 export class Environment {
-  readonly worldStream: Observable<WorldState>;
-
   constructor(
     readonly description: EnvironmentDescription,
     private readonly worldStateService: WorldStateService,
-  ) {
-    this.worldStream = merge(
+  ) {}
+
+  get worldStream(): Observable<WorldState> {
+    return merge(
       from(this.getWorldStates()),
       this.worldStateService.stream.pipe(
         filter((state) => this.description.hasWorld(state.worldId)),

@@ -1,10 +1,10 @@
 import { map, merge, Observable, of, timer } from 'rxjs';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Scope } from '@nestjs/common';
 import { FactoryInterface } from '../../utils/factory.interface';
 import { Environment } from '../../environments/utils/environment';
 import { Stream } from 'ps2census';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class BaseStreamFactory implements FactoryInterface<Observable<any>> {
   constructor(private readonly environment: Environment) {}
 
