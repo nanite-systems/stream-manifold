@@ -17,7 +17,7 @@ export class EventSubscriptionService {
   private readonly _stream = new Subject<Ps2EventMessage>();
 
   constructor(
-    private readonly query: EventSubscriptionQuery,
+    readonly query: EventSubscriptionQuery,
     private readonly eventService: EventService,
     private readonly environment: Environment,
   ) {

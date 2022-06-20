@@ -4,7 +4,9 @@ import { CharacterEvent } from '../events/character.event';
 import { AttackerEvent } from '../events/attacker.event';
 import { GainExperienceEvent } from '../events/gain-experience.event';
 import { EventContract } from '../concerns/event.contract';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class EventService {
   readonly events: EventContract<any>[];
 

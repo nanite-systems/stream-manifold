@@ -5,18 +5,18 @@ import { HELP_EVENT_MESSAGE } from './messages/help-event.message';
 import { WebSocket } from 'ws';
 import { SubscribeDto } from './dtos/subscribe.dto';
 import { ClearSubscribeDto } from './dtos/clear-subscribe.dto';
-import { EventSubscriptionQuery } from '../subscription/entity/event-subscription.query';
 import { first, fromEvent, Observable, share, takeUntil } from 'rxjs';
 import { CENSUS_STREAM } from './constants';
 import { ConnectionContract } from './concers/connection.contract';
 import { EchoDto } from './dtos/echo.dto';
+import { EventSubscriptionService } from '../subscription/services/event-subscription.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export class StreamConnection implements ConnectionContract {
   private static readonly logger = new Logger('StreamConnection');
 
   constructor(
-    private readonly subscription: EventSubscriptionQuery,
+    private readonly subscriptionService: EventSubscriptionService,
     @Inject(CENSUS_STREAM) private readonly stream: Observable<any>,
   ) {}
 
@@ -32,7 +32,7 @@ export class StreamConnection implements ConnectionContract {
   }
 
   onDisconnected(): void {
-    this.subscription.clearAll();
+    this.subscriptionService.query.clearAll();
 
     StreamConnection.logger.log('Client disconnected');
   }
@@ -58,9 +58,9 @@ export class StreamConnection implements ConnectionContract {
     action: 'subscribe',
   })
   subscribe(@MessageBody() message: SubscribeDto) {
-    this.subscription.merge(message);
+    this.subscriptionService.query.merge(message);
 
-    return this.subscription.format(message.list_characters);
+    return this.subscriptionService.query.format(message.list_characters);
   }
 
   @SubscribeMessage<EventMessage>({
@@ -68,9 +68,9 @@ export class StreamConnection implements ConnectionContract {
     action: 'clearSubscribe',
   })
   clearSubscribe(@MessageBody() message: ClearSubscribeDto) {
-    if (message.all) this.subscription.clearAll();
-    else this.subscription.clear(message);
+    if (message.all) this.subscriptionService.query.clearAll();
+    else this.subscriptionService.query.clear(message);
 
-    return this.subscription.format(message.list_characters);
+    return this.subscriptionService.query.format(message.list_characters);
   }
 }
