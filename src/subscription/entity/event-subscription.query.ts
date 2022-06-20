@@ -47,7 +47,7 @@ export class EventSubscriptionQuery extends EventEmitter<EventSubscriptionQueryE
   }
 
   merge(subscribe: SubscribeDto): void {
-    subscribe.events?.forEach((event) => {
+    subscribe.eventNames?.forEach((event) => {
       this._events.add(event);
     });
     subscribe.worlds?.forEach((world) => {
@@ -65,7 +65,7 @@ export class EventSubscriptionQuery extends EventEmitter<EventSubscriptionQueryE
   }
 
   clear(subscribe: SubscribeDto): void {
-    subscribe.events?.forEach((event) => {
+    subscribe.eventNames?.forEach((event) => {
       this._events.delete(event);
     });
     subscribe.worlds?.forEach((world) => {

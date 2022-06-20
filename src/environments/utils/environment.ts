@@ -1,4 +1,4 @@
-import { filter, Observable } from 'rxjs';
+import { filter, from, merge, Observable } from 'rxjs';
 import { WorldState } from '../../world-state/concerns/world-state.type';
 import { WorldStateService } from '../../world-state/services/world-state.service';
 import { EnvironmentDescription } from './environment.description';
@@ -10,8 +10,11 @@ export class Environment {
     readonly description: EnvironmentDescription,
     private readonly worldStateService: WorldStateService,
   ) {
-    this.worldStream = this.worldStateService.stream.pipe(
-      filter((state) => this.description.hasWorld(state.worldId)),
+    this.worldStream = merge(
+      from(this.getWorldStates()),
+      this.worldStateService.stream.pipe(
+        filter((state) => this.description.hasWorld(state.worldId)),
+      ),
     );
   }
 

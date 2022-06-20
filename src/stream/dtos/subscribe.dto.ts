@@ -3,7 +3,7 @@ export class SubscribeDto {
 
   readonly characters?: Array<string>;
 
-  readonly events?: Array<string>;
+  readonly eventNames?: Array<string>;
 
   readonly list_characters = false;
 
