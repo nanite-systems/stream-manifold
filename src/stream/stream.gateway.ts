@@ -1,6 +1,10 @@
-import { OnGatewayConnection, WebSocketGateway } from '@nestjs/websockets';
+import {
+  OnGatewayConnection,
+  OnGatewayInit,
+  WebSocketGateway,
+} from '@nestjs/websockets';
 import { WsMessageHandler } from '@nestjs/common';
-import { ServerOptions, WebSocket } from 'ws';
+import { ServerOptions, WebSocket, WebSocketServer } from 'ws';
 import {
   EMPTY,
   filter,
@@ -21,19 +25,51 @@ import { CLOSE_EVENT, PARAM_ARGS_METADATA } from '@nestjs/websockets/constants';
 import { GatewayMetadataExplorer } from '@nestjs/websockets/gateway-metadata-explorer';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { REQUEST_CONTEXT_ID } from '@nestjs/core/router/request/request-constants';
+import * as http from 'http';
 import { IncomingMessage } from 'http';
 import { NestGateway } from '@nestjs/websockets/interfaces/nest-gateway.interface';
 import { ConnectionContract } from './concers/connection.contract';
+import { EnvironmentAccessor } from '../environments/utils/environment.accessor';
+import { EnvironmentService } from '../environments/services/environment.service';
 
 @WebSocketGateway<ServerOptions>()
-export class StreamGateway implements OnGatewayConnection {
+export class StreamGateway implements OnGatewayInit, OnGatewayConnection {
   private readonly paramFactory = new WsParamsFactory();
 
   constructor(
     private readonly moduleRef: ModuleRef,
     private readonly contextCreator: ExternalContextCreator,
     private readonly metadataExplorer: GatewayMetadataExplorer,
+    private readonly service: EnvironmentService,
   ) {}
+
+  afterInit(server: WebSocketServer): void {
+    const defaultHandleUpgrade = server.handleUpgrade.bind(server);
+    server.handleUpgrade = (request, socket, upgradeHead, callback) => {
+      const { environment } = new EnvironmentAccessor(request);
+
+      if (!this.service.get(environment)) {
+        const code = 403;
+        const message = http.STATUS_CODES[code];
+        const headers = {
+          'Content-Length': Buffer.byteLength(message),
+        };
+
+        socket.once('finish', socket.destroy);
+
+        socket.end(
+          `HTTP/1.1 ${code} ${http.STATUS_CODES[code]}\r\n` +
+            Object.keys(headers)
+              .map((h) => `${h}: ${headers[h]}`)
+              .join('\r\n') +
+            '\r\n\r\n' +
+            message,
+        );
+      } else {
+        defaultHandleUpgrade(request, socket, upgradeHead, callback);
+      }
+    };
+  }
 
   async handleConnection(client: WebSocket, ...args: any[]): Promise<void> {
     const req: IncomingMessage = args[0];
