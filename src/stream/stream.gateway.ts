@@ -44,6 +44,9 @@ export class StreamGateway implements OnGatewayInit, OnGatewayConnection {
   ) {}
 
   afterInit(server: WebSocketServer): void {
+    /**
+     * Hi, if you are reading this I apologise for this monstrosity
+     */
     const defaultHandleUpgrade = server.handleUpgrade.bind(server);
     server.handleUpgrade = (request, socket, upgradeHead, callback) => {
       const { environment } = new EnvironmentAccessor(request);
