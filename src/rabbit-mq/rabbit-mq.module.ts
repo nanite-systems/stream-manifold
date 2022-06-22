@@ -39,7 +39,7 @@ export class RabbitMqModule implements OnApplicationShutdown {
         this.logger.log('Disconnected');
       })
       .on('connectFailed', () => {
-        this.logger.log('Connection failed');
+        this.logger.warn('Connection failed');
       });
   }
 
