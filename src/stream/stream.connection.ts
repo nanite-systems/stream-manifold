@@ -1,4 +1,12 @@
-import { Inject, Injectable, Logger, Scope } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  Scope,
+  UseInterceptors,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { MessageBody, SubscribeMessage } from '@nestjs/websockets';
 import { EventMessage } from './concers/message.types';
 import { HELP_EVENT_MESSAGE } from './messages/help-event.message';
@@ -10,8 +18,15 @@ import { CENSUS_STREAM } from './constants';
 import { ConnectionContract } from './concers/connection.contract';
 import { EchoDto } from './dtos/echo.dto';
 import { EventSubscriptionService } from '../subscription/services/event-subscription.service';
+import { IgnoreErrorInterceptor } from './interceptors/ignore-error.interceptor';
 
 @Injectable({ scope: Scope.REQUEST })
+@UsePipes(
+  new ValidationPipe({
+    transform: true,
+  }),
+)
+@UseInterceptors(new IgnoreErrorInterceptor())
 export class StreamConnection implements ConnectionContract {
   private static readonly logger = new Logger('StreamConnection');
 
