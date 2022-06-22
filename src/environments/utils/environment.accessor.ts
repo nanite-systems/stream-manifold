@@ -1,6 +1,7 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { IncomingMessage } from 'http';
 import { WS_REQUEST } from '../../stream/constants';
+import { EnvironmentManifest } from '../environment.manifest';
 
 @Injectable({ scope: Scope.REQUEST })
 export class EnvironmentAccessor {
@@ -11,6 +12,6 @@ export class EnvironmentAccessor {
       this.request.url.match(/(?<=\?).*/)?.[0],
     );
 
-    return params.get('environment') ?? '';
+    return params.get('environment') ?? EnvironmentManifest.defaultEnvironment;
   }
 }

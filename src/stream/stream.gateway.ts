@@ -25,13 +25,13 @@ import { IncomingMessage } from 'http';
 import { NestGateway } from '@nestjs/websockets/interfaces/nest-gateway.interface';
 import { ConnectionContract } from './concers/connection.contract';
 import { EnvironmentAccessor } from '../environments/utils/environment.accessor';
+import { EnvironmentManifest } from '../environments/environment.manifest';
 
 @WebSocketGateway<ServerOptions>({
   verifyClient: ({ req }, callback) => {
     const { environment } = new EnvironmentAccessor(req);
-    // TODO: environment list should be gotten from a single source that define
-    //  the environments
-    if (['', 'ps2', 'ps2ps4eu', 'ps2ps4us'].includes(environment))
+
+    if (EnvironmentManifest.validateEnvironmentKey(environment))
       callback(true, 200);
     else callback(false, 403);
   },

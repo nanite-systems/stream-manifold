@@ -1,16 +1,15 @@
 import { EnvironmentDescription } from './utils/environment.description';
 
 export class EnvironmentManifest {
-  readonly ps2 = new EnvironmentDescription([
-    '1',
-    '10',
-    '13',
-    '17',
-    '19',
-    '40',
-  ]);
+  static readonly defaultEnvironment = 'ps2';
 
-  readonly ps2ps4eu = new EnvironmentDescription(['1000']);
+  static readonly environments: Record<string, EnvironmentDescription> = {
+    ps2: new EnvironmentDescription(['1', '10', '13', '17', '19', '40']),
+    ps2ps4eu: new EnvironmentDescription(['1000']),
+    ps2ps4us: new EnvironmentDescription(['2000']),
+  };
 
-  readonly ps2ps4us = new EnvironmentDescription(['2000']);
+  static validateEnvironmentKey(key: string): boolean {
+    return Object.keys(this.environments).includes(key);
+  }
 }
