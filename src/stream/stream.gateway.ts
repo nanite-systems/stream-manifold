@@ -33,7 +33,7 @@ import { EnvironmentManifest } from '../environments/environment.manifest';
 
     if (EnvironmentManifest.validateEnvironmentKey(environment))
       callback(true, 200);
-    else callback(false, 403);
+    else callback(false, 403, '403 Forbidden');
   },
 })
 export class StreamGateway implements OnGatewayConnection {
