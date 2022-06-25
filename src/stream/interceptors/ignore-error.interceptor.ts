@@ -1,5 +1,5 @@
 import { CallHandler, ExecutionContext, NestInterceptor } from '@nestjs/common';
-import { catchError, from, Observable } from 'rxjs';
+import { catchError, from, Observable, throwError } from 'rxjs';
 import { ValidationError } from 'class-validator';
 
 export class IgnoreErrorInterceptor implements NestInterceptor {
@@ -16,7 +16,7 @@ export class IgnoreErrorInterceptor implements NestInterceptor {
         )
           return from([undefined]);
 
-        throw err;
+        return throwError(() => err);
       }),
     );
   }
