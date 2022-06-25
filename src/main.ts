@@ -11,13 +11,13 @@ import { ConfigModule } from '@census-reworked/nestjs-utils';
 async function bootstrap() {
   ConfigModule.forRoot();
 
+  const config = await ConfigModule.resolveConfig(AppConfig);
+
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
   );
-  const config = await app.resolve(AppConfig);
 
-  app.useLogger(config.logLevels);
   app.useWebSocketAdapter(new WsAdapter(app));
   app.enableShutdownHooks();
 

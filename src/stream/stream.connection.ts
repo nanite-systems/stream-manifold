@@ -19,6 +19,8 @@ import { ConnectionContract } from './concers/connection.contract';
 import { EchoDto } from './dtos/echo.dto';
 import { EventSubscriptionService } from '../subscription/services/event-subscription.service';
 import { IgnoreErrorInterceptor } from './interceptors/ignore-error.interceptor';
+import { IncomingMessage } from 'http';
+import { randomUUID } from 'crypto';
 
 @Injectable({ scope: Scope.REQUEST })
 @UsePipes(
@@ -30,14 +32,20 @@ import { IgnoreErrorInterceptor } from './interceptors/ignore-error.interceptor'
 export class StreamConnection implements ConnectionContract {
   private static readonly logger = new Logger('StreamConnection');
 
+  private readonly id = randomUUID();
+
   constructor(
     private readonly subscriptionService: EventSubscriptionService,
     @Inject(CENSUS_STREAM) private readonly stream: Observable<any>,
   ) {}
 
-  onConnected(client: WebSocket): void {
-    // TODO: Improve logged message
-    StreamConnection.logger.log('Client connected');
+  onConnected(client: WebSocket, request: IncomingMessage): void {
+    StreamConnection.logger.log(
+      `Client connected ${this.id}: ${JSON.stringify({
+        ip: request.socket.remoteAddress,
+        url: request.url,
+      })}`,
+    );
 
     const close = fromEvent(client, 'close').pipe(first(), share());
 
@@ -49,7 +57,7 @@ export class StreamConnection implements ConnectionContract {
   onDisconnected(): void {
     this.subscriptionService.query.clearAll();
 
-    StreamConnection.logger.log('Client disconnected');
+    StreamConnection.logger.log(`Client disconnected ${this.id}`);
   }
 
   @SubscribeMessage<EventMessage>({
