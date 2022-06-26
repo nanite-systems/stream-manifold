@@ -3,7 +3,7 @@
   <img src="https://nanite-systems.net/images/ns.colored.svg" width="200" alt="Nest Logo" />
 </a>
 
-
+![version](https://img.shields.io/github/package-json/v/nanite-systems/stream-manifold)
 [![issues](https://img.shields.io/github/issues/nanite-systems/stream-manifold)](https://github.com/nanite-systems/stream-manifold/issues)
 [![dependecies](https://img.shields.io/librariesio/github/nanite-systems/stream-manifold)](https://libraries.io/github/nanite-systems/stream-manifold)
 [![license](https://img.shields.io/github/license/nanite-systems/stream-manifold)](https://github.com/nanite-systems/stream-manifold/blob/main/LICENSE)
