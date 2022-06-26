@@ -95,7 +95,7 @@ export class EventSubscriptionQuery extends EventEmitter<EventSubscriptionQueryE
   format(listCharacters = false) {
     return {
       subscription:
-        this._events.has('all') || listCharacters
+        this._characters.has('all') || listCharacters
           ? {
               characters: ['all'],
               eventNames: Array.from(this._events),
