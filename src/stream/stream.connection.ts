@@ -21,6 +21,7 @@ import { EventSubscriptionService } from '../subscription/services/event-subscri
 import { IgnoreErrorInterceptor } from './interceptors/ignore-error.interceptor';
 import { IncomingMessage } from 'http';
 import { randomUUID } from 'crypto';
+import { Environment } from '../environments/utils/environment';
 
 @Injectable({ scope: Scope.REQUEST })
 @UsePipes(
@@ -36,6 +37,7 @@ export class StreamConnection implements ConnectionContract {
 
   constructor(
     private readonly subscriptionService: EventSubscriptionService,
+    private readonly environment: Environment,
     @Inject(CENSUS_STREAM) private readonly stream: Observable<any>,
   ) {}
 
@@ -43,7 +45,7 @@ export class StreamConnection implements ConnectionContract {
     StreamConnection.logger.log(
       `Client connected ${this.id}: ${JSON.stringify({
         ip: request.socket.remoteAddress,
-        url: request.url,
+        environment: this.environment.environmentName,
       })}`,
     );
 
@@ -81,6 +83,15 @@ export class StreamConnection implements ConnectionContract {
     action: 'subscribe',
   })
   subscribe(@MessageBody() message: SubscribeDto) {
+    StreamConnection.logger.log(
+      `Client subscribe ${this.id}: ${JSON.stringify({
+        eventNames: message.eventNames,
+        worlds: message.worlds,
+        characters: message.characters,
+        logicalAndCharactersWithWorlds: message.logicalAndCharactersWithWorlds,
+      })}`,
+    );
+
     this.subscriptionService.query.merge(message);
 
     return this.subscriptionService.query.format(message.list_characters);
@@ -91,6 +102,16 @@ export class StreamConnection implements ConnectionContract {
     action: 'clearSubscribe',
   })
   clearSubscribe(@MessageBody() message: ClearSubscribeDto) {
+    StreamConnection.logger.log(
+      `Client unsubscribe ${this.id}: ${JSON.stringify({
+        eventNames: message.eventNames,
+        worlds: message.worlds,
+        characters: message.characters,
+        logicalAndCharactersWithWorlds: message.logicalAndCharactersWithWorlds,
+        all: message.all,
+      })}`,
+    );
+
     if (message.all) this.subscriptionService.query.clearAll();
     else this.subscriptionService.query.clear(message);
 

@@ -7,7 +7,14 @@ import { WorldStateService } from '../../world-state/services/world-state.servic
 export class EnvironmentFactory {
   constructor(private readonly worldStateService: WorldStateService) {}
 
-  create(description: EnvironmentDescription): Environment {
-    return new Environment(description, this.worldStateService);
+  create(
+    environmentName: string,
+    description: EnvironmentDescription,
+  ): Environment {
+    return new Environment(
+      environmentName,
+      description,
+      this.worldStateService,
+    );
   }
 }

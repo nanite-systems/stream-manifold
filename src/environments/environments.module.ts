@@ -28,17 +28,9 @@ export class EnvironmentsModule implements OnModuleInit {
   ) {}
 
   onModuleInit(): void {
-    const pc = this.factory.create(EnvironmentManifest.environments.ps2);
-    const ps4eu = this.factory.create(
-      EnvironmentManifest.environments.ps2ps4eu,
-    );
-    const ps4us = this.factory.create(
-      EnvironmentManifest.environments.ps2ps4us,
-    );
-
-    this.service
-      .register('ps2', pc)
-      .register('os2ps4eu', ps4eu)
-      .register('ps2ps4us', ps4us);
+    for (const [environment, description] of Object.entries(
+      EnvironmentManifest.environments,
+    ))
+      this.service.register(this.factory.create(environment, description));
   }
 }

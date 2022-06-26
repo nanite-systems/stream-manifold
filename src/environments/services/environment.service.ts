@@ -5,8 +5,8 @@ import { Environment } from '../utils/environment';
 export class EnvironmentService {
   private readonly environments = new Map<string, Environment>();
 
-  register(key: string, environment: Environment): this {
-    this.environments.set(key, environment);
+  register(environment: Environment): this {
+    this.environments.set(environment.environmentName, environment);
 
     return this;
   }

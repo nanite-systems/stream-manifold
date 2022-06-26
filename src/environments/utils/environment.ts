@@ -5,6 +5,7 @@ import { EnvironmentDescription } from './environment.description';
 
 export class Environment {
   constructor(
+    readonly environmentName: string,
     readonly description: EnvironmentDescription,
     private readonly worldStateService: WorldStateService,
   ) {}
