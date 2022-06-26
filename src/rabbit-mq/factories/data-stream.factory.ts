@@ -30,6 +30,7 @@ export class DataStreamFactory {
         await channel.bindQueue(queue, name);
         await channel.consume(queue, (message) => {
           subject.next(message);
+          channel.ack(message);
         });
       },
     });
