@@ -14,8 +14,6 @@ export class AttackerEventSubscription<
 {
   private readonly subscription: Subscription;
 
-  private filter: (message: Event) => boolean;
-
   constructor(
     readonly eventName: EventName<Event>,
     readonly world,
@@ -23,22 +21,15 @@ export class AttackerEventSubscription<
     stream: Observable<Event>,
     callback: (message: Event) => void,
   ) {
-    this.update(query);
-
     this.subscription = stream
-      .pipe(filter((message) => this.filter(message)))
+      .pipe(
+        filter(
+          (message) =>
+            query.hasCharacter(message.character_id) ||
+            query.hasCharacter(message.attacker_character_id),
+        ),
+      )
       .subscribe(callback);
-  }
-
-  update(query: EventSubscriptionQuery): void {
-    const hasWorld = query.hasWorld(this.world);
-
-    this.filter = query.logicalAndCharactersWithWorlds
-      ? (message) => query.hasCharacter(message.character_id)
-      : (message) =>
-          hasWorld ||
-          query.hasCharacter(message.character_id) ||
-          query.hasCharacter(message.attacker_character_id);
   }
 
   unsubscribe() {
