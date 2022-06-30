@@ -17,11 +17,11 @@ import { first, fromEvent, Observable, share, takeUntil } from 'rxjs';
 import { CENSUS_STREAM } from './constants';
 import { ConnectionContract } from './concers/connection.contract';
 import { EchoDto } from './dtos/echo.dto';
-import { EventSubscriptionService } from '../subscription/services/event-subscription.service';
 import { IgnoreErrorInterceptor } from './interceptors/ignore-error.interceptor';
 import { IncomingMessage } from 'http';
 import { randomUUID } from 'crypto';
 import { Environment } from '../environments/utils/environment';
+import { EventSubscriptionQuery } from '../subscription/entity/event-subscription.query';
 
 @Injectable({ scope: Scope.REQUEST })
 @UsePipes(
@@ -36,7 +36,7 @@ export class StreamConnection implements ConnectionContract {
   private readonly id = randomUUID();
 
   constructor(
-    private readonly subscriptionService: EventSubscriptionService,
+    private readonly subscription: EventSubscriptionQuery,
     private readonly environment: Environment,
     @Inject(CENSUS_STREAM) private readonly stream: Observable<any>,
   ) {}
@@ -57,7 +57,7 @@ export class StreamConnection implements ConnectionContract {
   }
 
   onDisconnected(): void {
-    this.subscriptionService.query.clearAll();
+    this.subscription.clearAll();
 
     StreamConnection.logger.log(`Client disconnected ${this.id}`);
   }
@@ -92,9 +92,9 @@ export class StreamConnection implements ConnectionContract {
       })}`,
     );
 
-    this.subscriptionService.query.merge(message);
+    this.subscription.merge(message);
 
-    return this.subscriptionService.query.format(message.list_characters);
+    return this.subscription.format(message.list_characters);
   }
 
   @SubscribeMessage<EventMessage>({
@@ -112,9 +112,9 @@ export class StreamConnection implements ConnectionContract {
       })}`,
     );
 
-    if (message.all) this.subscriptionService.query.clearAll();
-    else this.subscriptionService.query.clear(message);
+    if (message.all) this.subscription.clearAll();
+    else this.subscription.clear(message);
 
-    return this.subscriptionService.query.format(message.list_characters);
+    return this.subscription.format(message.list_characters);
   }
 }

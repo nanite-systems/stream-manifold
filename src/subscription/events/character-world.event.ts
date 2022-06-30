@@ -8,10 +8,13 @@ import { filter, Observable, Subscription } from 'rxjs';
 import { EventStreamFactory } from '../../ingress/factories/event-stream.factory';
 import { EventSubscriptionQuery } from '../entity/event-subscription.query';
 
-export class CharacterEventSubscription<Event extends CharacterEventMessage>
-  implements EventSubscriptionContract<Event>
+export class CharacterWorldEventSubscription<
+  Event extends CharacterEventMessage,
+> implements EventSubscriptionContract<Event>
 {
   private readonly subscription: Subscription;
+
+  private filter: (message: Event) => boolean;
 
   constructor(
     readonly eventName: EventName<Event>,
@@ -20,9 +23,18 @@ export class CharacterEventSubscription<Event extends CharacterEventMessage>
     stream: Observable<Event>,
     callback: (message: Event) => void,
   ) {
+    this.update(query);
+
     this.subscription = stream
-      .pipe(filter((message) => query.hasCharacter(message.character_id)))
+      .pipe(filter((message) => this.filter(message)))
       .subscribe(callback);
+  }
+
+  update(query: EventSubscriptionQuery): void {
+    const hasWorld = query.hasWorld(this.world);
+
+    this.filter = (message) =>
+      hasWorld || query.hasCharacter(message.character_id);
   }
 
   unsubscribe() {
@@ -30,13 +42,12 @@ export class CharacterEventSubscription<Event extends CharacterEventMessage>
   }
 }
 
-export class CharacterEvent<Event extends CharacterEventMessage>
+export class CharacterWorldEvent<Event extends CharacterEventMessage>
   implements EventContract<Event>
 {
   constructor(
     readonly eventName: EventName<Event>,
     private readonly eventStreamFactory: EventStreamFactory,
-    private readonly ignoreLogicalAnd = false,
   ) {}
 
   matches(query: EventSubscriptionQuery): boolean {
@@ -44,15 +55,15 @@ export class CharacterEvent<Event extends CharacterEventMessage>
   }
 
   allWorlds(query: EventSubscriptionQuery): boolean {
-    return !query.logicalAndCharactersWithWorlds;
+    return true;
   }
 
   subscribe(
     world: string,
     query: EventSubscriptionQuery,
     callback: (message: Event) => void,
-  ): CharacterEventSubscription<Event> {
-    return new CharacterEventSubscription(
+  ): CharacterWorldEventSubscription<Event> {
+    return new CharacterWorldEventSubscription(
       this.eventName,
       world,
       query,

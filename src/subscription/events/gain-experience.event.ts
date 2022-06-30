@@ -32,15 +32,12 @@ export class GainExperienceEventSubscription<
   }
 
   update(query: EventSubscriptionQuery) {
-    const hasWorld = query.hasWorld(this.world);
     const allEvents = query.hasEvent('GainExperience');
 
     this.experienceIds.clear();
 
     if (allEvents) {
-      this.filter = query.logicalAndCharactersWithWorlds
-        ? (message) => query.hasCharacter(message.character_id)
-        : (message) => hasWorld || query.hasCharacter(message.character_id);
+      this.filter = (message) => query.hasCharacter(message.character_id);
     } else {
       for (const event of query.events) {
         const match = event.match(/^GainExperience_experience_id_(\d+)$/);
@@ -48,9 +45,9 @@ export class GainExperienceEventSubscription<
         if (match) this.experienceIds.add(match[1]);
       }
 
-      this.filter = query.logicalAndCharactersWithWorlds
-        ? (message) => query.hasCharacter(message.character_id)
-        : (message) => hasWorld || query.hasCharacter(message.character_id);
+      this.filter = (message) =>
+        this.experienceIds.has(message.experience_id) &&
+        query.hasCharacter(message.character_id);
     }
   }
 

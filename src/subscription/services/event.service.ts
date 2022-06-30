@@ -5,6 +5,7 @@ import { AttackerEvent } from '../events/attacker.event';
 import { GainExperienceEvent } from '../events/gain-experience.event';
 import { EventContract } from '../concerns/event.contract';
 import { Injectable } from '@nestjs/common';
+import { CharacterWorldEvent } from '../events/character-world.event';
 
 @Injectable()
 export class EventService {
@@ -25,8 +26,8 @@ export class EventService {
       new CharacterEvent('SkillAdded', eventStreamFactory),
       new CharacterEvent('VehicleDestroy', eventStreamFactory),
 
-      new CharacterEvent('PlayerLogin', eventStreamFactory, true),
-      new CharacterEvent('PlayerLogout', eventStreamFactory, true),
+      new CharacterWorldEvent('PlayerLogin', eventStreamFactory),
+      new CharacterWorldEvent('PlayerLogout', eventStreamFactory),
 
       new AttackerEvent('Death', eventStreamFactory),
       new AttackerEvent('VehicleDestroy', eventStreamFactory),
