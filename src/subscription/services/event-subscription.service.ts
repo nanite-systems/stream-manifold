@@ -6,6 +6,7 @@ import { EventSubscriptionContract } from '../concerns/event-subscription.contra
 import { EventName, Ps2EventMessage } from '../concerns/event-message.types';
 import { EventContract } from '../concerns/event.contract';
 import { EventService } from './event.service';
+import { Stream } from 'ps2census';
 
 @Injectable({ scope: Scope.REQUEST })
 export class EventSubscriptionService {
@@ -14,7 +15,8 @@ export class EventSubscriptionService {
     EventSubscriptionContract<Ps2EventMessage>
   >();
 
-  private readonly _stream = new Subject<Ps2EventMessage>();
+  private readonly _stream =
+    new Subject<Stream.CensusMessages.ServiceMessage>();
 
   constructor(
     readonly query: EventSubscriptionQuery,
@@ -41,7 +43,7 @@ export class EventSubscriptionService {
     });
   }
 
-  get stream(): Observable<Ps2EventMessage> {
+  get stream(): Observable<Stream.CensusMessages.ServiceMessage> {
     return this._stream;
   }
 
@@ -67,8 +69,12 @@ export class EventSubscriptionService {
     else
       this.subscriptionMap.set(
         key,
-        event.subscribe(world, this.query, (message) =>
-          this._stream.next(message),
+        event.subscribe(world, this.query, (payload) =>
+          this._stream.next({
+            payload,
+            service: 'event',
+            type: 'serviceMessage',
+          }),
         ),
       );
   }

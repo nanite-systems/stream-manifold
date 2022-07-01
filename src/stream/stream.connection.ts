@@ -22,6 +22,7 @@ import { IncomingMessage } from 'http';
 import { randomUUID } from 'crypto';
 import { Environment } from '../environments/utils/environment';
 import { EventSubscriptionQuery } from '../subscription/entity/event-subscription.query';
+import { Stream } from 'ps2census';
 
 @Injectable({ scope: Scope.REQUEST })
 @UsePipes(
@@ -74,7 +75,7 @@ export class StreamConnection implements ConnectionContract {
     service: 'event',
     action: 'echo',
   })
-  echo(@MessageBody() { payload }: EchoDto) {
+  echo(@MessageBody() { payload }: EchoDto): unknown {
     return payload;
   }
 
@@ -82,7 +83,9 @@ export class StreamConnection implements ConnectionContract {
     service: 'event',
     action: 'subscribe',
   })
-  subscribe(@MessageBody() message: SubscribeDto) {
+  subscribe(
+    @MessageBody() message: SubscribeDto,
+  ): Stream.CensusMessages.Subscription {
     StreamConnection.logger.log(
       `Client subscribe ${this.id}: ${JSON.stringify({
         eventNames: message.eventNames,
@@ -101,7 +104,9 @@ export class StreamConnection implements ConnectionContract {
     service: 'event',
     action: 'clearSubscribe',
   })
-  clearSubscribe(@MessageBody() message: ClearSubscribeDto) {
+  clearSubscribe(
+    @MessageBody() message: ClearSubscribeDto,
+  ): Stream.CensusMessages.Subscription {
     StreamConnection.logger.log(
       `Client unsubscribe ${this.id}: ${JSON.stringify({
         eventNames: message.eventNames,

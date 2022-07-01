@@ -1,6 +1,7 @@
 import { SubscribeDto } from '../../stream/dtos/subscribe.dto';
 import { Injectable, Scope } from '@nestjs/common';
 import { EventEmitter } from 'eventemitter3';
+import { Stream } from 'ps2census';
 
 type EventSubscriptionQueryEvents = {
   subscribe: () => void;
@@ -92,24 +93,24 @@ export class EventSubscriptionQuery extends EventEmitter<EventSubscriptionQueryE
     this.emit('unsubscribeAll');
   }
 
-  format(listCharacters = false) {
+  format(listCharacters = false): Stream.CensusMessages.Subscription {
+    if (this._characters.has('all') || listCharacters)
+      return {
+        subscription: {
+          characters: ['all'],
+          eventNames: Array.from(this._events) as any,
+          logicalAndCharactersWithWorlds: this._logicalAndCharactersWithWorlds,
+          worlds: Array.from(this._worlds),
+        },
+      };
+
     return {
-      subscription:
-        this._characters.has('all') || listCharacters
-          ? {
-              characters: ['all'],
-              eventNames: Array.from(this._events),
-              logicalAndCharactersWithWorlds:
-                this._logicalAndCharactersWithWorlds,
-              worlds: Array.from(this._worlds),
-            }
-          : {
-              characterCount: this._characters.size,
-              eventNames: Array.from(this._events),
-              logicalAndCharactersWithWorlds:
-                this._logicalAndCharactersWithWorlds,
-              worlds: Array.from(this._worlds),
-            },
+      subscription: {
+        characterCount: this._characters.size,
+        eventNames: Array.from(this._events) as any,
+        logicalAndCharactersWithWorlds: this._logicalAndCharactersWithWorlds,
+        worlds: Array.from(this._worlds),
+      },
     };
   }
 }
