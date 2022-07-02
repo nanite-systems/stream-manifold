@@ -19,6 +19,10 @@ export class WorldEventSubscription<Event extends Ps2EventMessage>
     this.subscription = stream.subscribe(callback);
   }
 
+  update() {
+    // void
+  }
+
   unsubscribe() {
     this.subscription.unsubscribe();
   }

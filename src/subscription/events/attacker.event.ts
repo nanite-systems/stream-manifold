@@ -32,6 +32,10 @@ export class AttackerEventSubscription<
       .subscribe(callback);
   }
 
+  update() {
+    // void
+  }
+
   unsubscribe() {
     this.subscription.unsubscribe();
   }

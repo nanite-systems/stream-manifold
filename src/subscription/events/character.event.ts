@@ -25,6 +25,10 @@ export class CharacterEventSubscription<Event extends CharacterEventMessage>
       .subscribe(callback);
   }
 
+  update() {
+    // void
+  }
+
   unsubscribe() {
     this.subscription.unsubscribe();
   }

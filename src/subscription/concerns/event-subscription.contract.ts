@@ -6,7 +6,7 @@ export interface EventSubscriptionContract<Event extends Ps2EventMessage> {
 
   readonly world: string;
 
-  update?(query: EventSubscriptionQuery): void;
+  update(query: EventSubscriptionQuery): void;
 
   unsubscribe(): void;
 }
