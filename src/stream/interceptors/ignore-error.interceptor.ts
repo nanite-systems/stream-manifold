@@ -1,6 +1,10 @@
-import { CallHandler, ExecutionContext, NestInterceptor } from '@nestjs/common';
+import {
+  BadRequestException,
+  CallHandler,
+  ExecutionContext,
+  NestInterceptor,
+} from '@nestjs/common';
 import { catchError, from, Observable, throwError } from 'rxjs';
-import { ValidationError } from 'class-validator';
 
 export class IgnoreErrorInterceptor implements NestInterceptor {
   intercept(
@@ -9,12 +13,9 @@ export class IgnoreErrorInterceptor implements NestInterceptor {
   ): Observable<any> | Promise<Observable<any>> {
     return next.handle().pipe(
       catchError((err) => {
-        if (
-          err instanceof Array &&
-          err.length &&
-          err[0] instanceof ValidationError
-        )
+        if (err instanceof BadRequestException) {
           return from([undefined]);
+        }
 
         return throwError(() => err);
       }),
