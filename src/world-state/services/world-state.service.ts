@@ -1,11 +1,14 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { WorldState } from '../concerns/world-state.type';
 import { Axios } from 'axios';
 import { MULTIPLEXER_HTTP } from '../../multiplexer/constants';
 import { Observable, Subject } from 'rxjs';
+import { sleep } from '../../utils/promise.helper';
 
 @Injectable()
 export class WorldStateService implements OnModuleInit {
+  private readonly logger = new Logger('WorldStateService');
+
   private readonly cache = new Map<string, WorldState>();
 
   private readonly _stream = new Subject<WorldState>();
@@ -17,7 +20,17 @@ export class WorldStateService implements OnModuleInit {
   }
 
   async onModuleInit(): Promise<void> {
-    await this.fetchStates();
+    do {
+      try {
+        await this.fetchStates();
+        return;
+      } catch (err) {
+        this.logger.error(`Failed to initialize world states: ${err}`);
+
+        // Let's not try to DDOS anything
+        await sleep(1000);
+      }
+    } while (true);
   }
 
   getStates(): WorldState[] {
