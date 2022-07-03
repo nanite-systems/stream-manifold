@@ -45,7 +45,7 @@ export class StreamConnection implements ConnectionContract {
   onConnected(client: WebSocket, request: IncomingMessage): void {
     StreamConnection.logger.log(
       `Client connected ${this.id}: ${JSON.stringify({
-        ip: request.socket.remoteAddress,
+        ipAddress: request.headers['x-forwarded-for'],
         environment: this.environment.environmentName,
       })}`,
     );
