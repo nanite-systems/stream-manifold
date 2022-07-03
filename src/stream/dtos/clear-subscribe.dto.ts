@@ -1,7 +1,12 @@
 import { SubscribeDto } from './subscribe.dto';
 import { Transform } from 'class-transformer';
+import { IsBoolean, IsOptional } from 'class-validator';
 
 export class ClearSubscribeDto extends SubscribeDto {
-  @Transform(({ value }) => Boolean(value))
-  readonly all: boolean;
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) =>
+    ['true', 'false'].includes(value.toLowerCase()) ? value == 'true' : value,
+  )
+  readonly all?: boolean;
 }

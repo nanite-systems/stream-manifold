@@ -1,4 +1,5 @@
 import { IsArray, IsBoolean, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class SubscribeDto {
   @IsOptional()
@@ -18,8 +19,14 @@ export class SubscribeDto {
 
   @IsOptional()
   @IsBoolean()
-  readonly logicalAndCharactersWithWorlds: boolean;
+  @Transform(({ value }) =>
+    ['true', 'false'].includes(value.toLowerCase()) ? value == 'true' : value,
+  )
+  readonly logicalAndCharactersWithWorlds?: boolean;
 
   @IsBoolean()
+  @Transform(({ value }) =>
+    ['true', 'false'].includes(value.toLowerCase()) ? value == 'true' : value,
+  )
   readonly list_characters = false;
 }
