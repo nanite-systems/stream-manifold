@@ -95,7 +95,13 @@ export class StreamConnection implements ConnectionContract {
       })}`,
     );
 
-    this.subscription.merge(message);
+    if (
+      message.characters ||
+      message.worlds ||
+      message.eventNames ||
+      message.logicalAndCharactersWithWorlds != undefined
+    )
+      this.subscription.merge(message);
 
     return this.subscription.format(message.list_characters);
   }
@@ -118,7 +124,13 @@ export class StreamConnection implements ConnectionContract {
     );
 
     if (message.all) this.subscription.clearAll();
-    else this.subscription.clear(message);
+    else if (
+      message.characters ||
+      message.worlds ||
+      message.eventNames ||
+      message.logicalAndCharactersWithWorlds != undefined
+    )
+      this.subscription.clear(message);
 
     return this.subscription.format(message.list_characters);
   }

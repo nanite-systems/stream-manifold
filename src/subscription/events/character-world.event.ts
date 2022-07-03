@@ -31,10 +31,9 @@ export class CharacterWorldEventSubscription<
   }
 
   update(query: EventSubscriptionQuery): void {
-    const hasWorld = query.hasWorld(this.world);
-
-    this.filter = (message) =>
-      hasWorld || query.hasCharacter(message.character_id);
+    this.filter = query.hasWorld(this.world)
+      ? () => true
+      : (message) => query.hasCharacter(message.character_id);
   }
 
   unsubscribe() {
@@ -55,7 +54,7 @@ export class CharacterWorldEvent<Event extends CharacterEventMessage>
   }
 
   allWorlds(query: EventSubscriptionQuery): boolean {
-    return true;
+    return query.noCharacters > 0;
   }
 
   subscribe(
