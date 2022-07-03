@@ -1,14 +1,10 @@
 import { SubscribeDto } from './subscribe.dto';
-import { Transform } from 'class-transformer';
 import { IsBoolean, IsOptional } from 'class-validator';
+import { TransformBoolean } from '../../utils/census.transformers';
 
 export class ClearSubscribeDto extends SubscribeDto {
   @IsOptional()
   @IsBoolean()
-  @Transform(({ value }) =>
-    ['true', 'false'].includes(value?.toLowerCase())
-      ? value.toLowerCase() == 'true'
-      : value,
-  )
+  @TransformBoolean()
   readonly all?: boolean;
 }

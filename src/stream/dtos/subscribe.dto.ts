@@ -1,5 +1,5 @@
 import { IsArray, IsBoolean, IsOptional, IsString } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { TransformBoolean } from '../../utils/census.transformers';
 
 export class SubscribeDto {
   @IsOptional()
@@ -19,18 +19,10 @@ export class SubscribeDto {
 
   @IsOptional()
   @IsBoolean()
-  @Transform(({ value }) =>
-    ['true', 'false'].includes(value?.toLowerCase())
-      ? value.toLowerCase() == 'true'
-      : value,
-  )
+  @TransformBoolean()
   readonly logicalAndCharactersWithWorlds?: boolean;
 
   @IsBoolean()
-  @Transform(({ value }) =>
-    ['true', 'false'].includes(value?.toLowerCase())
-      ? value.toLowerCase() == 'true'
-      : value,
-  )
+  @TransformBoolean()
   readonly list_characters = false;
 }
