@@ -19,24 +19,36 @@ export class EventSubscriptionQuery extends EventEmitter<EventSubscriptionQueryE
 
   private _logicalAndCharactersWithWorlds = false;
 
-  get worlds(): Iterable<string> {
+  get worlds(): Iterator<string> {
     return this._worlds[Symbol.iterator]();
+  }
+
+  get noWorlds(): number {
+    return this._worlds.size;
   }
 
   hasWorld(world: string): boolean {
     return this._worlds.has('all') || this._worlds.has(world);
   }
 
-  get characters(): Iterable<string> {
+  get characters(): Iterator<string> {
     return this._characters[Symbol.iterator]();
+  }
+
+  get noCharacters(): number {
+    return this._characters.size;
   }
 
   hasCharacter(character: string): boolean {
     return this._characters.has('all') || this._characters.has(character);
   }
 
-  get events(): Iterable<string> {
+  get events(): Iterator<string> {
     return this._events[Symbol.iterator]();
+  }
+
+  get noEvents(): number {
+    return this._events.size;
   }
 
   hasEvent(event: string): boolean {
