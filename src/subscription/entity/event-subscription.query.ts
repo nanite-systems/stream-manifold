@@ -19,8 +19,8 @@ export class EventSubscriptionQuery extends EventEmitter<EventSubscriptionQueryE
 
   private _logicalAndCharactersWithWorlds = false;
 
-  get worlds(): Iterator<string> {
-    return this._worlds[Symbol.iterator]();
+  get worlds(): string[] {
+    return Array.from(this._worlds);
   }
 
   get noWorlds(): number {
@@ -31,8 +31,8 @@ export class EventSubscriptionQuery extends EventEmitter<EventSubscriptionQueryE
     return this._worlds.has('all') || this._worlds.has(world);
   }
 
-  get characters(): Iterator<string> {
-    return this._characters[Symbol.iterator]();
+  get characters(): string[] {
+    return Array.from(this._characters);
   }
 
   get noCharacters(): number {
@@ -43,8 +43,8 @@ export class EventSubscriptionQuery extends EventEmitter<EventSubscriptionQueryE
     return this._characters.has('all') || this._characters.has(character);
   }
 
-  get events(): Iterator<string> {
-    return this._events[Symbol.iterator]();
+  get events(): string[] {
+    return Array.from(this._events);
   }
 
   get noEvents(): number {
