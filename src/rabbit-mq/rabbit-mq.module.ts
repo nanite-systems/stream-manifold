@@ -19,7 +19,7 @@ import { IAmqpConnectionManager } from 'amqp-connection-manager/dist/esm/AmqpCon
     {
       provide: INGRESS_QUEUE,
       useFactory: (factory: DataStreamFactory, config: RabbitMqConfig) =>
-        factory.create(config.ingressExchange),
+        factory.create(config.streamExchange),
       inject: [DataStreamFactory, RabbitMqConfig],
     },
   ],

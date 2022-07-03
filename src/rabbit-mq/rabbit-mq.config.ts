@@ -6,7 +6,7 @@ export class RabbitMqConfig {
   @IsUrl({ protocols: ['amqp'], require_tld: false })
   url: string;
 
-  @ProcessEnv('RABBITMQ_INGRESS_EXCHANGE')
+  @ProcessEnv('RABBITMQ_STREAM_EXCHANGE')
   @IsNotEmpty()
-  ingressExchange: string;
+  streamExchange: string;
 }
