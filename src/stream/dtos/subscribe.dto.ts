@@ -20,13 +20,13 @@ export class SubscribeDto {
   @IsOptional()
   @IsBoolean()
   @Transform(({ value }) =>
-    ['true', 'false'].includes(value.toLowerCase()) ? value == 'true' : value,
+    ['true', 'false'].includes(value?.toLowerCase()) ? value == 'true' : value,
   )
   readonly logicalAndCharactersWithWorlds?: boolean;
 
   @IsBoolean()
   @Transform(({ value }) =>
-    ['true', 'false'].includes(value.toLowerCase()) ? value == 'true' : value,
+    ['true', 'false'].includes(value?.toLowerCase()) ? value == 'true' : value,
   )
   readonly list_characters = false;
 }

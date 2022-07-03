@@ -6,7 +6,7 @@ export class ClearSubscribeDto extends SubscribeDto {
   @IsOptional()
   @IsBoolean()
   @Transform(({ value }) =>
-    ['true', 'false'].includes(value.toLowerCase()) ? value == 'true' : value,
+    ['true', 'false'].includes(value?.toLowerCase()) ? value == 'true' : value,
   )
   readonly all?: boolean;
 }
