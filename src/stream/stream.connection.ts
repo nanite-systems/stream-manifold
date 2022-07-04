@@ -86,22 +86,24 @@ export class StreamConnection implements ConnectionContract {
   subscribe(
     @MessageBody() message: SubscribeDto,
   ): Stream.CensusMessages.Subscription {
-    StreamConnection.logger.log(
-      `Client subscribe ${this.id}: ${JSON.stringify({
-        eventNames: message.eventNames,
-        worlds: message.worlds,
-        characters: message.characters,
-        logicalAndCharactersWithWorlds: message.logicalAndCharactersWithWorlds,
-      })}`,
-    );
-
     if (
       message.characters ||
       message.worlds ||
       message.eventNames ||
       message.logicalAndCharactersWithWorlds != undefined
-    )
+    ) {
+      StreamConnection.logger.log(
+        `Client subscribe ${this.id}: ${JSON.stringify({
+          eventNames: message.eventNames,
+          worlds: message.worlds,
+          characters: message.characters,
+          logicalAndCharactersWithWorlds:
+            message.logicalAndCharactersWithWorlds,
+        })}`,
+      );
+
       this.subscription.merge(message);
+    }
 
     return this.subscription.format(message.list_characters);
   }
@@ -113,24 +115,29 @@ export class StreamConnection implements ConnectionContract {
   clearSubscribe(
     @MessageBody() message: ClearSubscribeDto,
   ): Stream.CensusMessages.Subscription {
-    StreamConnection.logger.log(
-      `Client unsubscribe ${this.id}: ${JSON.stringify({
-        eventNames: message.eventNames,
-        worlds: message.worlds,
-        characters: message.characters,
-        logicalAndCharactersWithWorlds: message.logicalAndCharactersWithWorlds,
-        all: message.all,
-      })}`,
-    );
+    if (message.all) {
+      StreamConnection.logger.log(`Client unsubscribe all ${this.id}`);
 
-    if (message.all) this.subscription.clearAll();
-    else if (
+      this.subscription.clearAll();
+    } else if (
       message.characters ||
       message.worlds ||
       message.eventNames ||
       message.logicalAndCharactersWithWorlds != undefined
-    )
+    ) {
+      StreamConnection.logger.log(
+        `Client unsubscribe ${this.id}: ${JSON.stringify({
+          eventNames: message.eventNames,
+          worlds: message.worlds,
+          characters: message.characters,
+          logicalAndCharactersWithWorlds:
+            message.logicalAndCharactersWithWorlds,
+          all: message.all,
+        })}`,
+      );
+
       this.subscription.clear(message);
+    }
 
     return this.subscription.format(message.list_characters);
   }
