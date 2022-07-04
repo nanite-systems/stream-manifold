@@ -10,6 +10,7 @@ import { CensusStreamFactory } from './factories/census-stream.factory';
 import { RabbitMqModule } from '../rabbit-mq/rabbit-mq.module';
 import { EnvironmentsModule } from '../environments/environments.module';
 import { SubscriptionModule } from '../subscription/subscription.module';
+import { MultiplexerModule } from '../multiplexer/multiplexer.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { SubscriptionModule } from '../subscription/subscription.module';
     RabbitMqModule,
     EnvironmentsModule,
     SubscriptionModule,
+    MultiplexerModule,
   ],
   providers: [
     {

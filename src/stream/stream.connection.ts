@@ -23,6 +23,7 @@ import { randomUUID } from 'crypto';
 import { Environment } from '../environments/utils/environment';
 import { EventSubscriptionQuery } from '../subscription/entity/event-subscription.query';
 import { Stream } from 'ps2census';
+import { MultiplexerService } from '../multiplexer/services/multiplexer.service';
 
 @Injectable({ scope: Scope.REQUEST })
 @UsePipes(
@@ -39,6 +40,7 @@ export class StreamConnection implements ConnectionContract {
   constructor(
     private readonly subscription: EventSubscriptionQuery,
     private readonly environment: Environment,
+    private readonly multiplexer: MultiplexerService,
     @Inject(CENSUS_STREAM) private readonly stream: Observable<any>,
   ) {}
 
@@ -140,5 +142,42 @@ export class StreamConnection implements ConnectionContract {
     }
 
     return this.subscription.format(message.list_characters);
+  }
+
+  @SubscribeMessage<EventMessage>({
+    service: 'event',
+    action: 'recentCharacterIds',
+  })
+  async recentCharacterIds(): Promise<Stream.CensusMessages.ServiceMessage> {
+    const characters = await this.multiplexer.getRecentCharactersIds(
+      this.environment.environmentName,
+    );
+
+    return {
+      service: 'event',
+      type: 'serviceMessage',
+      payload: {
+        recent_character_id_count: characters.length,
+        recent_character_id_list: characters,
+      },
+    };
+  }
+
+  @SubscribeMessage<EventMessage>({
+    service: 'event',
+    action: 'recentCharacterIdsCount',
+  })
+  async recentCharacterIdsCount(): Promise<Stream.CensusMessages.ServiceMessage> {
+    const count = await this.multiplexer.getRecentCharactersCount(
+      this.environment.environmentName,
+    );
+
+    return {
+      service: 'event',
+      type: 'serviceMessage',
+      payload: {
+        recent_character_id_count: count,
+      },
+    };
   }
 }

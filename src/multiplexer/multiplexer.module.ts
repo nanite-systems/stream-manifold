@@ -3,10 +3,13 @@ import { ConfigModule } from '@census-reworked/nestjs-utils';
 import { MultiplexerConfig } from './multiplexer.config';
 import { MULTIPLEXER_HTTP } from './constants';
 import { Axios } from 'axios';
+import { MultiplexerService } from './services/multiplexer.service';
 
 @Module({
   imports: [ConfigModule.forFeature([MultiplexerConfig])],
   providers: [
+    MultiplexerService,
+
     {
       provide: MULTIPLEXER_HTTP,
       useFactory: (config: MultiplexerConfig) =>
@@ -16,6 +19,6 @@ import { Axios } from 'axios';
       inject: [MultiplexerConfig],
     },
   ],
-  exports: [MULTIPLEXER_HTTP],
+  exports: [MultiplexerService],
 })
 export class MultiplexerModule {}

@@ -1,9 +1,8 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { WorldState } from '../concerns/world-state.type';
-import { Axios } from 'axios';
-import { MULTIPLEXER_HTTP } from '../../multiplexer/constants';
 import { Observable, Subject } from 'rxjs';
 import { sleep } from '../../utils/promise.helper';
+import { MultiplexerService } from '../../multiplexer/services/multiplexer.service';
 
 @Injectable()
 export class WorldStateService implements OnModuleInit {
@@ -13,7 +12,7 @@ export class WorldStateService implements OnModuleInit {
 
   private readonly _stream = new Subject<WorldState>();
 
-  constructor(@Inject(MULTIPLEXER_HTTP) private readonly multiplexer: Axios) {}
+  constructor(private readonly multiplexer: MultiplexerService) {}
 
   get stream(): Observable<WorldState> {
     return this._stream;
@@ -46,9 +45,8 @@ export class WorldStateService implements OnModuleInit {
   }
 
   async fetchStates(): Promise<void> {
-    const { data } = await this.multiplexer.get<string>('/world-states');
+    const states = await this.multiplexer.getWorldsStates();
 
-    // TODO: Why is this even necessary?
-    JSON.parse(data).forEach((state) => this.registerState(state));
+    states.forEach((state) => this.registerState(state));
   }
 }
