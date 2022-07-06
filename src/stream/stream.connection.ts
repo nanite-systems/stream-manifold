@@ -24,6 +24,7 @@ import { Environment } from '../environments/utils/environment';
 import { EventSubscriptionQuery } from '../subscription/entity/event-subscription.query';
 import { Stream } from 'ps2census';
 import { MultiplexerService } from '../multiplexer/services/multiplexer.service';
+import { StreamConfig } from './stream.config';
 
 @Injectable({ scope: Scope.REQUEST })
 @UsePipes(
@@ -38,6 +39,7 @@ export class StreamConnection implements ConnectionContract {
   private readonly id = randomUUID();
 
   constructor(
+    private readonly config: StreamConfig,
     private readonly subscription: EventSubscriptionQuery,
     private readonly environment: Environment,
     private readonly multiplexer: MultiplexerService,
@@ -47,8 +49,13 @@ export class StreamConnection implements ConnectionContract {
   onConnected(client: WebSocket, request: IncomingMessage): void {
     StreamConnection.logger.log(
       `Client connected ${this.id}: ${JSON.stringify({
-        ipAddress: request.headers['x-forwarded-for'],
         environment: this.environment.environmentName,
+        headers: Object.fromEntries(
+          this.config.logHeaders.map((header) => [
+            header,
+            request.headers[header],
+          ]),
+        ),
       })}`,
     );
 
